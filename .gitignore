@@ -1,0 +1,55 @@
+# Secrets and env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Databases and data
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Uploads and user files
+uploads/
+backups/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Test and tooling caches
+.vitest/
+playwright-report/
+test-results/
+coverage/
+.cache/
+
+# Model caches (Transformers.js downloads)
+models/
+.e2e-data/
+.e2e-data-*/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Working notes that shouldn't ship
+.scratch/

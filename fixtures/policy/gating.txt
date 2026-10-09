@@ -1,0 +1,10 @@
+Hi {{customer}},
+
+Thanks again for choosing {{business}}! If you are happy with our work, here is the link to review us on Google:
+
+{{link}}
+
+If you weren't happy, please tell us instead — we want to fix it before you post.
+
+Thanks,
+{{owner}}

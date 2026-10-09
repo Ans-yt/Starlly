@@ -1,0 +1,1 @@
+ALTER TABLE `customers` ADD `rebooking_snoozed_until` text;

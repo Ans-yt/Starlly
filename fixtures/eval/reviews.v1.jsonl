@@ -1,0 +1,12 @@
+{"text": "They showed up right on time and did a great job. Very happy with the visit.", "language": "en", "themes": ["Punctuality"], "sentiment": "positive", "provenance": "synthetic-eval-v1"}
+{"text": "Way too expensive for what was done. The invoice was much higher than the estimate.", "language": "en", "themes": ["Pricing"], "sentiment": "negative", "provenance": "synthetic-eval-v1"}
+{"text": "Excellent work — the furnace runs like new and the repair has held up for months.", "language": "en", "themes": ["Quality of work"], "sentiment": "positive", "provenance": "synthetic-eval-v1"}
+{"text": "Impossible to reach anyone by phone. They never called back after three messages.", "language": "en", "themes": ["Communication"], "sentiment": "negative", "provenance": "synthetic-eval-v1"}
+{"text": "Ponctuels et très professionnels. Ils sont arrivés à l'heure exacte.", "language": "fr", "themes": ["Punctuality"], "sentiment": "positive", "provenance": "synthetic-eval-v1"}
+{"text": "Trop cher pour une simple révision. Le prix était injustifié.", "language": "fr", "themes": ["Pricing"], "sentiment": "negative", "provenance": "synthetic-eval-v1"}
+{"text": "Excelente servicio, arreglaron todo perfectamente y el problema no volvió.", "language": "es", "themes": ["Quality of work"], "sentiment": "positive", "provenance": "synthetic-eval-v1"}
+{"text": "Nunca contestaron al teléfono. Muy difícil comunicarse con ellos.", "language": "es", "themes": ["Communication"], "sentiment": "negative", "provenance": "synthetic-eval-v1"}
+{"text": "Service completed as scheduled. Nothing unusual to report.", "language": "en", "themes": [], "sentiment": "neutral", "provenance": "synthetic-eval-v1"}
+{"text": "On time, courteous, and the repair has held up perfectly since the visit.", "language": "en", "themes": ["Punctuality", "Quality of work"], "sentiment": "positive", "provenance": "synthetic-eval-v1"}
+{"text": "The same problem came back a week later. Poor workmanship overall.", "language": "en", "themes": ["Quality of work"], "sentiment": "negative", "provenance": "synthetic-eval-v1"}
+{"text": "Fair price for excellent work. Good value for the money.", "language": "en", "themes": ["Pricing"], "sentiment": "positive", "provenance": "synthetic-eval-v1"}

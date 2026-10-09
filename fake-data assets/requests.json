@@ -1,0 +1,842 @@
+[
+ {
+  "id": "q001",
+  "customer_id": "c001",
+  "sent": "2026-10-08",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q002",
+  "customer_id": "c002",
+  "sent": "2026-10-06",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q003",
+  "customer_id": "c003",
+  "sent": "2026-09-27",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q004",
+  "customer_id": "c004",
+  "sent": "2026-10-06",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q005",
+  "customer_id": "c005",
+  "sent": "2026-10-04",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q006",
+  "customer_id": "c006",
+  "sent": "2026-09-21",
+  "opened": true,
+  "rating": 2,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q007",
+  "customer_id": "c007",
+  "sent": "2026-10-05",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q008",
+  "customer_id": "c008",
+  "sent": "2026-09-15",
+  "opened": true,
+  "rating": 1,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q009",
+  "customer_id": "c009",
+  "sent": "2026-09-23",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q010",
+  "customer_id": "c010",
+  "sent": "2026-09-18",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q011",
+  "customer_id": "c011",
+  "sent": "2026-09-22",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q012",
+  "customer_id": "c012",
+  "sent": "2026-09-16",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q013",
+  "customer_id": "c013",
+  "sent": "2026-09-10",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q014",
+  "customer_id": "c014",
+  "sent": "2026-09-30",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q015",
+  "customer_id": "c015",
+  "sent": "2026-09-09",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q016",
+  "customer_id": "c016",
+  "sent": "2026-09-14",
+  "opened": true,
+  "rating": 4,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q017",
+  "customer_id": "c017",
+  "sent": "2026-09-24",
+  "opened": true,
+  "rating": 4,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q018",
+  "customer_id": "c018",
+  "sent": "2026-10-03",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q019",
+  "customer_id": "c019",
+  "sent": "2026-09-10",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q020",
+  "customer_id": "c020",
+  "sent": "2026-10-05",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q021",
+  "customer_id": "c021",
+  "sent": "2026-09-30",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q022",
+  "customer_id": "c022",
+  "sent": "2026-09-29",
+  "opened": true,
+  "rating": 1,
+  "google_click": false,
+  "feedback": true,
+  "call_request": false
+ },
+ {
+  "id": "q023",
+  "customer_id": "c023",
+  "sent": "2026-09-26",
+  "opened": true,
+  "rating": 3,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q024",
+  "customer_id": "c024",
+  "sent": "2026-09-25",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q025",
+  "customer_id": "c025",
+  "sent": "2026-09-16",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q026",
+  "customer_id": "c026",
+  "sent": "2026-09-16",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q027",
+  "customer_id": "c027",
+  "sent": "2026-10-03",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q028",
+  "customer_id": "c028",
+  "sent": "2026-09-24",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q029",
+  "customer_id": "c029",
+  "sent": "2026-09-15",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q030",
+  "customer_id": "c030",
+  "sent": "2026-09-10",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q031",
+  "customer_id": "c031",
+  "sent": "2026-10-05",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q032",
+  "customer_id": "c032",
+  "sent": "2026-09-11",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q033",
+  "customer_id": "c033",
+  "sent": "2026-09-09",
+  "opened": true,
+  "rating": 4,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q034",
+  "customer_id": "c034",
+  "sent": "2026-09-24",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q035",
+  "customer_id": "c035",
+  "sent": "2026-09-28",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q036",
+  "customer_id": "c036",
+  "sent": "2026-09-28",
+  "opened": true,
+  "rating": 3,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q037",
+  "customer_id": "c037",
+  "sent": "2026-09-12",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q038",
+  "customer_id": "c038",
+  "sent": "2026-10-02",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q039",
+  "customer_id": "c039",
+  "sent": "2026-10-08",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q040",
+  "customer_id": "c040",
+  "sent": "2026-09-26",
+  "opened": true,
+  "rating": 5,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q041",
+  "customer_id": "c041",
+  "sent": "2026-09-12",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q042",
+  "customer_id": "c042",
+  "sent": "2026-09-13",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q043",
+  "customer_id": "c043",
+  "sent": "2026-10-01",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q044",
+  "customer_id": "c044",
+  "sent": "2026-10-05",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q045",
+  "customer_id": "c045",
+  "sent": "2026-09-11",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q046",
+  "customer_id": "c046",
+  "sent": "2026-10-02",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q047",
+  "customer_id": "c047",
+  "sent": "2026-09-13",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q048",
+  "customer_id": "c048",
+  "sent": "2026-09-27",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q049",
+  "customer_id": "c049",
+  "sent": "2026-09-17",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q050",
+  "customer_id": "c050",
+  "sent": "2026-09-28",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q051",
+  "customer_id": "c051",
+  "sent": "2026-09-30",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q052",
+  "customer_id": "c052",
+  "sent": "2026-09-19",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q053",
+  "customer_id": "c053",
+  "sent": "2026-10-08",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q054",
+  "customer_id": "c054",
+  "sent": "2026-09-11",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q055",
+  "customer_id": "c055",
+  "sent": "2026-10-02",
+  "opened": true,
+  "rating": 2,
+  "google_click": false,
+  "feedback": true,
+  "call_request": false
+ },
+ {
+  "id": "q056",
+  "customer_id": "c056",
+  "sent": "2026-10-06",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q057",
+  "customer_id": "c057",
+  "sent": "2026-09-10",
+  "opened": true,
+  "rating": 4,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q058",
+  "customer_id": "c058",
+  "sent": "2026-10-06",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q059",
+  "customer_id": "c059",
+  "sent": "2026-10-03",
+  "opened": true,
+  "rating": 4,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q060",
+  "customer_id": "c060",
+  "sent": "2026-09-13",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q061",
+  "customer_id": "c061",
+  "sent": "2026-09-17",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q062",
+  "customer_id": "c062",
+  "sent": "2026-09-17",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q063",
+  "customer_id": "c063",
+  "sent": "2026-09-20",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q064",
+  "customer_id": "c064",
+  "sent": "2026-09-29",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q065",
+  "customer_id": "c065",
+  "sent": "2026-09-17",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q066",
+  "customer_id": "c066",
+  "sent": "2026-09-30",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q067",
+  "customer_id": "c067",
+  "sent": "2026-10-03",
+  "opened": true,
+  "rating": 4,
+  "google_click": true,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q068",
+  "customer_id": "c068",
+  "sent": "2026-10-07",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q069",
+  "customer_id": "c069",
+  "sent": "2026-10-04",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q070",
+  "customer_id": "c070",
+  "sent": "2026-09-23",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q071",
+  "customer_id": "c071",
+  "sent": "2026-10-05",
+  "opened": true,
+  "rating": 4,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q072",
+  "customer_id": "c072",
+  "sent": "2026-09-12",
+  "opened": true,
+  "rating": 1,
+  "google_click": false,
+  "feedback": true,
+  "call_request": false
+ },
+ {
+  "id": "q073",
+  "customer_id": "c073",
+  "sent": "2026-10-07",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q074",
+  "customer_id": "c074",
+  "sent": "2026-09-26",
+  "opened": true,
+  "rating": 3,
+  "google_click": false,
+  "feedback": true,
+  "call_request": false
+ },
+ {
+  "id": "q075",
+  "customer_id": "c075",
+  "sent": "2026-09-30",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q076",
+  "customer_id": "c076",
+  "sent": "2026-09-18",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q077",
+  "customer_id": "c077",
+  "sent": "2026-10-06",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q078",
+  "customer_id": "c078",
+  "sent": "2026-09-20",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q079",
+  "customer_id": "c079",
+  "sent": "2026-09-20",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q080",
+  "customer_id": "c080",
+  "sent": "2026-10-01",
+  "opened": true,
+  "rating": 2,
+  "google_click": false,
+  "feedback": true,
+  "call_request": false
+ },
+ {
+  "id": "q081",
+  "customer_id": "c081",
+  "sent": "2026-10-07",
+  "opened": true,
+  "rating": 4,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q082",
+  "customer_id": "c082",
+  "sent": "2026-10-06",
+  "opened": true,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q083",
+  "customer_id": "c083",
+  "sent": "2026-09-29",
+  "opened": false,
+  "rating": null,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ },
+ {
+  "id": "q084",
+  "customer_id": "c084",
+  "sent": "2026-10-08",
+  "opened": true,
+  "rating": 5,
+  "google_click": false,
+  "feedback": false,
+  "call_request": false
+ }
+]

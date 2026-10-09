@@ -1,0 +1,22 @@
+[
+  {
+    "id": "t-punctuality",
+    "name": "Punctuality",
+    "description": "Arriving on time for appointments, being late, scheduling and punctual service visits"
+  },
+  {
+    "id": "t-pricing",
+    "name": "Pricing",
+    "description": "Cost, price, value for money, charges, invoices, estimates and whether it felt expensive or fair"
+  },
+  {
+    "id": "t-quality",
+    "name": "Quality of work",
+    "description": "Workmanship, repair quality, whether the problem was fixed properly and the work held up"
+  },
+  {
+    "id": "t-communication",
+    "name": "Communication",
+    "description": "Phone access, responsiveness, calling back, keeping the customer informed and answering questions"
+  }
+]

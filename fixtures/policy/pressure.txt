@@ -1,0 +1,8 @@
+Hi {{customer}},
+
+Thanks again for choosing {{business}}! Please give us 5 stars — it really helps small businesses like ours:
+
+{{link}}
+
+Thanks,
+{{owner}}

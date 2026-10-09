@@ -1,0 +1,438 @@
+[
+ {
+  "weeks_ago": 0,
+  "avg_rating": 2.57,
+  "n": 7,
+  "themes": {
+   "phone": 5,
+   "ontime": 1,
+   "firstvisit": 2
+  }
+ },
+ {
+  "weeks_ago": 1,
+  "avg_rating": 4.4,
+  "n": 5,
+  "themes": {
+   "price": 1,
+   "window": 1,
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 2,
+  "avg_rating": 3.83,
+  "n": 6,
+  "themes": {
+   "phone": 1,
+   "ontime": 1,
+   "window": 1
+  }
+ },
+ {
+  "weeks_ago": 3,
+  "avg_rating": 3.75,
+  "n": 4,
+  "themes": {
+   "phone": 2,
+   "firstvisit": 1
+  }
+ },
+ {
+  "weeks_ago": 4,
+  "avg_rating": 3.0,
+  "n": 1,
+  "themes": {
+   "cleanup": 1
+  }
+ },
+ {
+  "weeks_ago": 5,
+  "avg_rating": 3.8,
+  "n": 5,
+  "themes": {
+   "phone": 1,
+   "ontime": 1,
+   "price": 1
+  }
+ },
+ {
+  "weeks_ago": 6,
+  "avg_rating": 3.5,
+  "n": 2,
+  "themes": {
+   "window": 1
+  }
+ },
+ {
+  "weeks_ago": 7,
+  "avg_rating": 4.33,
+  "n": 3,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 10,
+  "avg_rating": 2.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 11,
+  "avg_rating": 4.5,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 12,
+  "avg_rating": 4.8,
+  "n": 5,
+  "themes": {
+   "firstvisit": 1
+  }
+ },
+ {
+  "weeks_ago": 13,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 14,
+  "avg_rating": 4.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 15,
+  "avg_rating": 4.0,
+  "n": 3,
+  "themes": {
+   "cleanup": 1
+  }
+ },
+ {
+  "weeks_ago": 17,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {
+   "firstvisit": 1
+  }
+ },
+ {
+  "weeks_ago": 18,
+  "avg_rating": 4.0,
+  "n": 1,
+  "themes": {
+   "price": 1
+  }
+ },
+ {
+  "weeks_ago": 19,
+  "avg_rating": 1.0,
+  "n": 1,
+  "themes": {
+   "window": 1
+  }
+ },
+ {
+  "weeks_ago": 21,
+  "avg_rating": 5.0,
+  "n": 3,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 22,
+  "avg_rating": 5.0,
+  "n": 3,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 23,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 24,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 26,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 28,
+  "avg_rating": 4.5,
+  "n": 2,
+  "themes": {
+   "ontime": 2
+  }
+ },
+ {
+  "weeks_ago": 29,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {
+   "firstvisit": 1
+  }
+ },
+ {
+  "weeks_ago": 30,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 31,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {
+   "price": 1
+  }
+ },
+ {
+  "weeks_ago": 32,
+  "avg_rating": 4.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 33,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 34,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 35,
+  "avg_rating": 4.6,
+  "n": 5,
+  "themes": {
+   "window": 1
+  }
+ },
+ {
+  "weeks_ago": 36,
+  "avg_rating": 5.0,
+  "n": 4,
+  "themes": {
+   "firstvisit": 1,
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 37,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 39,
+  "avg_rating": 4.67,
+  "n": 3,
+  "themes": {
+   "price": 1
+  }
+ },
+ {
+  "weeks_ago": 40,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 41,
+  "avg_rating": 4.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 42,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {
+   "price": 1
+  }
+ },
+ {
+  "weeks_ago": 43,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 45,
+  "avg_rating": 3.75,
+  "n": 4,
+  "themes": {
+   "cleanup": 1,
+   "firstvisit": 2,
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 48,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 49,
+  "avg_rating": 4.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 51,
+  "avg_rating": 3.75,
+  "n": 4,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 53,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 54,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 57,
+  "avg_rating": 3.0,
+  "n": 4,
+  "themes": {
+   "firstvisit": 1,
+   "ontime": 1,
+   "window": 1
+  }
+ },
+ {
+  "weeks_ago": 59,
+  "avg_rating": 4.5,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 60,
+  "avg_rating": 4.0,
+  "n": 3,
+  "themes": {
+   "firstvisit": 1
+  }
+ },
+ {
+  "weeks_ago": 61,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 62,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 63,
+  "avg_rating": 5.0,
+  "n": 4,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 64,
+  "avg_rating": 4.33,
+  "n": 3,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 65,
+  "avg_rating": 5.0,
+  "n": 3,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 66,
+  "avg_rating": 4.5,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 67,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 68,
+  "avg_rating": 4.5,
+  "n": 2,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 69,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 70,
+  "avg_rating": 5.0,
+  "n": 2,
+  "themes": {
+   "price": 1
+  }
+ },
+ {
+  "weeks_ago": 71,
+  "avg_rating": 5.0,
+  "n": 3,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 72,
+  "avg_rating": 5.0,
+  "n": 1,
+  "themes": {}
+ },
+ {
+  "weeks_ago": 73,
+  "avg_rating": 4.0,
+  "n": 2,
+  "themes": {
+   "ontime": 1
+  }
+ },
+ {
+  "weeks_ago": 74,
+  "avg_rating": 4.0,
+  "n": 1,
+  "themes": {}
+ }
+]

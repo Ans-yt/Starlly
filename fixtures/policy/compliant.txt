@@ -1,0 +1,10 @@
+Hi {{customer}},
+
+Thanks again for choosing {{business}}! We'd love to hear how we did — it takes one minute:
+
+{{link}}
+
+Every rating matters to us, and so does your honest feedback. If anything wasn't right, just reply to this email and we'll make it right.
+
+Thanks,
+{{owner}}

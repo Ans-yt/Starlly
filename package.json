@@ -1,0 +1,26 @@
+{
+  "name": "starlly",
+  "private": true,
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "npm run dev --workspace server",
+    "dev:web": "npm run dev --workspace web",
+    "build": "npm run build --workspace server && npm run build --workspace web",
+    "test": "npm test --workspace server",
+    "test:e2e": "npm run test:e2e --workspace web",
+    "db:generate": "npm run db:generate --workspace server",
+    "db:migrate": "npm run db:migrate --workspace server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

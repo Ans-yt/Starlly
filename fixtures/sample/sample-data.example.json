@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "business": {
+    "name": "Example Business (format reference)",
+    "ownerName": "Example Owner",
+    "city": "Exampleville",
+    "sinceDate": "2019",
+    "googleReviewUrl": "https://g.page/example-business/review",
+    "googleRating": 4.4,
+    "googleReviewCount": 126
+  },
+  "customers": [
+    { "name": "Sample Customer One", "contact": "one@example.test", "serviceType": "annual check-up", "lastJobDate": "2025-03-14", "consent": true },
+    { "name": "Sample Customer Two", "contact": "two@example.test", "serviceType": "cleaning", "lastJobDate": "2025-05-02", "consent": true }
+  ],
+  "reviews": [
+    { "author": "Alex R.", "rating": 5, "date": "2025-05-20T10:00:00Z", "text": "Great service, arrived on time and fixed everything.", "source": "google_import" },
+    { "author": "Jordan P.", "rating": 2, "date": "2025-05-18T10:00:00Z", "text": "Impossible to reach by phone, and the invoice was higher than quoted.", "source": "google_import" },
+    { "author": "Sam K.", "rating": 4, "date": "2025-05-10T10:00:00Z", "text": "Good work overall, fair price.", "source": "pasted" }
+  ],
+  "themes": [
+    { "name": "Punctuality", "description": "Arriving on time, being late, scheduling" },
+    { "name": "Communication", "description": "Phone access, responsiveness, calling back" }
+  ],
+  "requests": [
+    {
+      "customerIndex": 0,
+      "sentAt": "2025-05-21T09:00:00Z",
+      "events": [
+        { "type": "opened", "at": "2025-05-21T10:12:00Z" },
+        { "type": "rated", "value": "5", "at": "2025-05-21T10:13:00Z" },
+        { "type": "google_click", "at": "2025-05-21T10:14:00Z" }
+      ]
+    }
+  ],
+  "privateFeedback": [
+    { "customerIndex": 1, "rating": 2, "text": "Nobody called me back after I left two messages.", "at": "2025-05-22T15:00:00Z" }
+  ]
+}

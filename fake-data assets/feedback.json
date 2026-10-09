@@ -1,0 +1,178 @@
+[
+ {
+  "id": "f01",
+  "source": "private_feedback",
+  "author": "Nora H.",
+  "rating": 1,
+  "date": "2026-10-05",
+  "service": "heat pump install",
+  "text": "Overall, great work but the office never answers the phone.",
+  "themes": [
+   "phone"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f02",
+  "source": "private_feedback",
+  "author": "Priya S.",
+  "rating": 2,
+  "date": "2026-10-04",
+  "service": "AC repair",
+  "text": "Great work, but I called three times before anyone picked up.",
+  "themes": [
+   "phone"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f03",
+  "source": "private_feedback",
+  "author": "Omar R.",
+  "rating": 4,
+  "date": "2026-10-03",
+  "service": "furnace install",
+  "text": "Fixed it on the first visit. Super friendly crew.",
+  "themes": [
+   "firstvisit"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f04",
+  "source": "private_feedback",
+  "author": "Elena V.",
+  "rating": 3,
+  "date": "2026-09-29",
+  "service": "heat pump install",
+  "text": "Good install, but the four-hour window ate my whole morning.",
+  "themes": [
+   "window"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f05",
+  "source": "private_feedback",
+  "author": "Lena Z.",
+  "rating": 5,
+  "date": "2026-09-29",
+  "service": "duct cleaning",
+  "text": "Overall, they were here within the window and never kept me waiting.",
+  "themes": [
+   "ontime"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f06",
+  "source": "private_feedback",
+  "author": "Ben C.",
+  "rating": 5,
+  "date": "2026-09-23",
+  "service": "furnace install",
+  "text": "Arrived exactly when they said they would. Great service all around.",
+  "themes": [
+   "ontime"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f07",
+  "source": "private_feedback",
+  "author": "Kai R.",
+  "rating": 4,
+  "date": "2026-09-23",
+  "service": "heat pump install",
+  "text": "Quick note. Will definitely call them again.",
+  "themes": [],
+  "replied": false
+ },
+ {
+  "id": "f08",
+  "source": "private_feedback",
+  "author": "Tom L.",
+  "rating": 4,
+  "date": "2026-09-19",
+  "service": "duct cleaning",
+  "text": "Overall, professional and courteous.",
+  "themes": [],
+  "replied": false
+ },
+ {
+  "id": "f09",
+  "source": "private_feedback",
+  "author": "Anna F.",
+  "rating": 2,
+  "date": "2026-09-18",
+  "service": "heat pump install",
+  "text": "Honest review: They gave a huge window and still showed up at the end of it.",
+  "themes": [
+   "window"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f10",
+  "source": "private_feedback",
+  "author": "Carl N.",
+  "rating": 5,
+  "date": "2026-09-12",
+  "service": "AC repair",
+  "text": "Had the right part in the van and solved it in under an hour.",
+  "themes": [
+   "firstvisit"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f11",
+  "source": "private_feedback",
+  "author": "Noel V.",
+  "rating": 3,
+  "date": "2026-09-05",
+  "service": "annual tune-up",
+  "text": "Update: Muddy footprints and leftover scraps after the job.",
+  "themes": [
+   "cleanup"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f12",
+  "source": "private_feedback",
+  "author": "Ben V.",
+  "rating": 4,
+  "date": "2026-09-01",
+  "service": "AC repair",
+  "text": "Clear pricing before any work started.",
+  "themes": [
+   "price"
+  ],
+  "replied": false
+ },
+ {
+  "id": "f13",
+  "source": "private_feedback",
+  "author": "Ben J.",
+  "rating": 4,
+  "date": "2026-08-20",
+  "service": "annual tune-up",
+  "text": "Overall, happy with the whole experience.",
+  "themes": [],
+  "replied": false
+ },
+ {
+  "id": "f14",
+  "source": "private_feedback",
+  "author": "Aron F.",
+  "rating": 5,
+  "date": "2026-08-15",
+  "service": "annual tune-up",
+  "text": "Update: On time, which almost never happens with contractors. Second year using them, always good.",
+  "themes": [
+   "ontime"
+  ],
+  "replied": false
+ }
+]

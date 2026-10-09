@@ -1,0 +1,8 @@
+Hi {{customer}},
+
+Thanks again for choosing {{business}}! Leave us a review and we'll give you a 10% discount on your next service:
+
+{{link}}
+
+Thanks,
+{{owner}}
