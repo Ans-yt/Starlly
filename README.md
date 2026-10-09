@@ -1,7 +1,7 @@
 # Starlly
 Fair, evidence-backed Google review requests and insights for small businesses. Local-first, bring your own keys.
 
-# Starlly
+#
 
 Starlly helps a small local business ask its customers for Google reviews, and then makes use of what comes back. The owner sends a review request after each job, sees ratings and recurring themes in one dashboard, and gets a ranked list of what to fix first. The AI drafts messages and summaries. The owner approves everything that gets sent.
 
