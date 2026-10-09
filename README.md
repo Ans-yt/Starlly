@@ -48,9 +48,9 @@ Customer links are `{PUBLIC_BASE_URL}/c/{token}`. For real customers, that URL m
 
 ## What works and what doesn't
 
-Works: sample data with zero keys, business profile, customers + CSV import, drafting → approval → send (agentboxd and Copy only adapters), customer pages with persisted events, theme/sentiment tagging (local Transformers.js), policy check, quote-verified insights, backups/export, delete-my-data.
+Works: sample data with zero keys, business profile, customers + CSV import, drafting → approval → send (agentboxd and Copy only adapters), customer pages with persisted events, theme/sentiment tagging (local Transformers.js), policy check, quote-verified insights, backups/export, delete-my-data, blocking setup gate (AI Test connection + email test must pass; Google Places key required or an explicit paste/import choice), one-screen dashboard at 1280×720 / 1440×900 / 1920×1080 with in-card scrolling for long lists, loading screen (hero video + intro cards) honoring prefers-reduced-motion.
 
-Doesn't (yet or by design): OpenMail/Composio adapters (pending verified docs), posting or replying on Google automatically, observing whether a review was posted (we see **Clicked Google link** only), multi-business hosting, learned rebooking probabilities without real labeled history, messaging-law compliance (not researched — review local regulations before sending at volume).
+Doesn't (yet or by design): OpenMail/Composio adapters (pending verified docs — HTML capability is documented, not verified end-to-end), Google Places lookup/confirm flow (unverified without a real key), posting or replying on Google automatically, observing whether a review was posted (we see **Clicked Google link** only), multi-business hosting, learned rebooking probabilities without real labeled history, messaging-law compliance (not researched — review local regulations before sending at volume).
 
 Demo models/data are synthetic and labeled; Google listing totals are shown separately from counts over imported reviews and private feedback.
 
