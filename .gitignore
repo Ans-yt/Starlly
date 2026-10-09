@@ -53,3 +53,7 @@ Thumbs.db
 
 # Working notes that shouldn't ship
 .scratch/
+
+# Owner-supplied drop-in folders — never part of the app source
+fake-data assets/
+training data/
