@@ -5,7 +5,12 @@ export class ApiError extends Error {
   status: number;
   body: any;
   constructor(status: number, body: any) {
-    super(body?.error ?? body?.message ?? `Request failed (${status})`);
+    const nestedMessage = body?.error?.message;
+    const message = typeof nestedMessage === "string" ? nestedMessage
+      : typeof body?.message === "string" ? body.message
+      : typeof body?.error === "string" ? body.error
+      : `Request failed (${status})`;
+    super(message);
     this.status = status;
     this.body = body;
   }

@@ -1042,3 +1042,29 @@ describe("duplicate-send prevention with ambiguous provider timeouts (ADR-0004)"
     await api("PUT", "/api/settings", { emailAdapterId: "copy-only" });
   });
 });
+
+
+describe("AI connection status follows the tested configuration", () => {
+  it("invalidates a passing test only when AI connection settings change", async () => {
+    await api("POST", "/api/settings/test-ai");
+    const before = await api("GET", "/api/settings");
+    expect(before.body.aiLastTestAt).not.toBeNull();
+    await api("PUT", "/api/settings", { aiModel: before.body.aiModel });
+    expect((await api("GET", "/api/settings")).body.aiLastTestAt).toBe(before.body.aiLastTestAt);
+    await api("PUT", "/api/settings", { aiModel: "changed-model" });
+    expect((await api("GET", "/api/settings")).body.aiLastTestAt).toBeNull();
+    await api("POST", "/api/settings/test-ai");
+    expect((await api("GET", "/api/settings")).body.aiLastTestAt).not.toBeNull();
+  });
+
+  it("clears the passing status when a later connection test fails", async () => {
+    _registerAiAdapterForTests("openai", {
+      style: "openai",
+      async test() { return { ok: false, error: { kind: "auth", message: "Invalid key", retryable: false } }; },
+      async chat() { return { text: "unused" }; },
+    });
+    const result = await api("POST", "/api/settings/test-ai");
+    expect(result.body.ok).toBe(false);
+    expect((await api("GET", "/api/settings")).body.aiLastTestAt).toBeNull();
+  });
+});

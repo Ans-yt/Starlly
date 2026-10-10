@@ -10,6 +10,7 @@ import { validateBusinessProfile } from "../../domain/validation.js";
 import { listEmailAdapters, getEmailAdapter } from "../../adapters/email/registry.js";
 import { resolveEmailSettings } from "../../adapters/email/resolve.js";
 import { resolveAiSettings } from "../../adapters/ai/registry.js";
+import { sanitizeAiErrorText } from "../../adapters/ai/types.js";
 
 /** Mask a secret for display: presence + last 4 characters only. */
 export function maskSecret(value: string | null | undefined): { set: boolean; masked: string } {
@@ -170,6 +171,11 @@ export function businessRouter(services: AppServices): Router {
       }
       patch.emailConfig = merged;
     }
+    const aiChanged = (data.aiStyle !== undefined && data.aiStyle !== row.aiStyle)
+      || (data.aiBaseUrl !== undefined && data.aiBaseUrl !== row.aiBaseUrl)
+      || (data.aiModel !== undefined && data.aiModel !== row.aiModel)
+      || (data.aiApiKey !== undefined && data.aiApiKey !== row.aiApiKey);
+    if (aiChanged) patch.aiLastTestAt = null;
     if (data.aiStyle !== undefined) patch.aiStyle = data.aiStyle ?? null;
     if (data.aiBaseUrl !== undefined) patch.aiBaseUrl = data.aiBaseUrl;
     if (data.aiModel !== undefined) patch.aiModel = data.aiModel;
@@ -220,6 +226,7 @@ export function businessRouter(services: AppServices): Router {
     const row = getBusinessRow(db);
     const resolved = resolveAiSettings(row);
     if (!resolved) {
+      db.update(business).set({ aiLastTestAt: null }).where(eq(business.id, 1)).run();
       res.status(400).json({
         ok: false,
         error: { kind: "validation", message: "AI provider not configured — style, model, and key are required.", retryable: false },
@@ -228,15 +235,14 @@ export function businessRouter(services: AppServices): Router {
     }
     try {
       const result = await resolved.adapter.test(resolved.config);
-      if (result.ok) {
-        db.update(business)
-          .set({ aiLastTestAt: new Date().toISOString(), updatedAt: new Date().toISOString() })
-          .where(eq(business.id, 1))
-          .run();
-      }
+      db.update(business)
+        .set({ aiLastTestAt: result.ok ? new Date().toISOString() : null, updatedAt: new Date().toISOString() })
+        .where(eq(business.id, 1))
+        .run();
       res.json(result);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Network error";
+      db.update(business).set({ aiLastTestAt: null }).where(eq(business.id, 1)).run();
+      const message = sanitizeAiErrorText(err instanceof Error ? err.message : "Network error");
       res.json({ ok: false, error: { kind: "temporary", message, retryable: true } });
     }
   });

@@ -66,3 +66,9 @@ Demo models/data are synthetic and labeled; Google listing totals are shown sepa
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE).
+
+AI provider testing in Settings saves the current AI fields before testing.
+Failures stay on the page with a readable message. Changing the AI connection
+fields or failing a later test clears its Connected status until a fresh test
+passes. Minimal OpenAI-style connection probes support token-limited reasoning
+models; normal chat still requires answer text. Keys remain masked on reads.

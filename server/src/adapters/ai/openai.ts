@@ -2,7 +2,7 @@
 // { model, messages, max_tokens?, temperature? }, Authorization: Bearer.
 // Errors: 401 auth, 400/404 validation, 429 rate_limit, 5xx temporary.
 import { providerFetch } from "../email/fetch.js";
-import { aiError, sanitizeAiErrorText, type AiAdapter, type AiChatResult, type AiTestResult, type ChatMessage } from "./types.js";
+import { aiError, sanitizeAiErrorText, type AiAdapter, type AiChatResult, type AiTestResult, type ChatMessage, type AiConfig, type AiChatOptions } from "./types.js";
 
 const DEFAULT_BASE_URL = "https://api.openai.com/v1";
 
@@ -25,39 +25,52 @@ async function classifyResponse(response: Response): Promise<{ kind: "auth" | "v
   return { kind: "permanent", message };
 }
 
+interface CompletionBody {
+  choices?: { finish_reason?: string; message?: { role?: string; content?: unknown; reasoning_content?: unknown } }[];
+}
+
+type CompletionResult = { data: CompletionBody } | { error: ReturnType<typeof aiError> };
+
+async function requestCompletion(config: AiConfig, messages: ChatMessage[], options?: AiChatOptions): Promise<CompletionResult> {
+  if (!config.apiKey) return { error: aiError("auth", "Missing API key.", false) };
+  if (!config.model) return { error: aiError("validation", "Missing model ID.", false) };
+  const base = (config.baseUrl || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const response = await providerFetch(`${base}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${config.apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: config.model,
+      messages,
+      ...(options?.maxTokens ? { max_tokens: options.maxTokens } : {}),
+      ...(options?.temperature != null ? { temperature: options.temperature } : {}),
+    }),
+  });
+  if (!response.ok) {
+    const { kind, message } = await classifyResponse(response);
+    return { error: aiError(kind, message, kind === "rate_limit" || kind === "temporary") };
+  }
+  return { data: await response.json() as CompletionBody };
+}
+
 export const openAiAdapter: AiAdapter = {
   style: "openai",
   async test(config): Promise<AiTestResult> {
-    // Cheapest honest check: a one-token chat completion via the documented endpoint.
-    const result = await this.chat(config, [{ role: "user", content: "ping" }], { maxTokens: 1 });
-    if ("text" in result) return { ok: true };
-    return { ok: false, error: result.error };
+    const result = await requestCompletion(config, [{ role: "user", content: "ping" }], { maxTokens: 1 });
+    if ("error" in result) return { ok: false, error: result.error };
+    const choice = result.data.choices?.[0];
+    const message = choice?.message;
+    // A reasoning model may spend the one-token probe on reasoning. A valid
+    // assistant completion ending at the token limit proves connectivity;
+    // normal chat below still requires actual answer text.
+    const reasoningProbe = choice?.finish_reason === "length" && message?.role === "assistant"
+      && typeof message.reasoning_content === "string";
+    if (typeof message?.content === "string" || reasoningProbe) return { ok: true };
+    return { ok: false, error: aiError("validation", "Provider response had no message content.", false) };
   },
   async chat(config, messages: ChatMessage[], options): Promise<AiChatResult> {
-    if (!config.apiKey) return { error: aiError("auth", "Missing API key.", false) };
-    if (!config.model) return { error: aiError("validation", "Missing model ID.", false) };
-    const base = (config.baseUrl || DEFAULT_BASE_URL).replace(/\/+$/, "");
-    const response = await providerFetch(`${base}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${config.apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: config.model,
-        messages,
-        ...(options?.maxTokens ? { max_tokens: options.maxTokens } : {}),
-        ...(options?.temperature != null ? { temperature: options.temperature } : {}),
-      }),
-    });
-    if (!response.ok) {
-      const { kind, message } = await classifyResponse(response);
-      return { error: aiError(kind, message, kind === "rate_limit" || kind === "temporary") };
-    }
-    const data = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const text = data.choices?.[0]?.message?.content;
+    const result = await requestCompletion(config, messages, options);
+    if ("error" in result) return result;
+    const text = result.data.choices?.[0]?.message?.content;
     if (typeof text !== "string") {
       return { error: aiError("validation", "Provider response had no message content.", false) };
     }

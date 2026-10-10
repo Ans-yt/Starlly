@@ -29,6 +29,22 @@ describe("OpenAI-style adapter", () => {
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer sk-test");
   });
 
+  it("accepts a token-limited reasoning response as a connection test, not a chat answer", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(200, {
+      choices: [{ finish_reason: "length", message: { role: "assistant", content: null, reasoning_content: "Thinking" } }],
+    })));
+    const config = { baseUrl: "https://api.example/v1", apiKey: "sk-test", model: "reasoning-model" };
+    expect(await openAiAdapter.test(config)).toEqual({ ok: true });
+    const reply = await openAiAdapter.chat(config, [{ role: "user", content: "hi" }]);
+    expect("error" in reply && reply.error.kind).toBe("validation");
+  });
+
+  it("rejects malformed successful responses during a connection test", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(200, { choices: [{ message: { content: null } }] })));
+    const result = await openAiAdapter.test({ baseUrl: "https://api.example/v1", apiKey: "sk-test", model: "m" });
+    expect(result.ok).toBe(false);
+  });
+
   it("normalizes a 401 into an auth error", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(401, { error: { message: "Incorrect API key" } })));
     const result = await openAiAdapter.chat(

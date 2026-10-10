@@ -7,13 +7,17 @@ import { api, ApiError, type Business, type Settings } from "../lib/api.js";
 import { ErrorBanner, Modal, OkBanner, Spinner } from "../components/ui.js";
 import { StatusChip } from "./Onboarding.js";
 
+type ConnectionTestResult = { ok: boolean; note?: string; error?: { message: string } };
+
 export default function SettingsPage() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [busy, setBusy] = useState(false);
+  const [aiTesting, setAiTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
-  const [testResult, setTestResult] = useState<{ ok: boolean; note?: string; error?: { message: string } } | null>(null);
+  const [testResult, setTestResult] = useState<ConnectionTestResult | null>(null);
+  const [aiTestResult, setAiTestResult] = useState<ConnectionTestResult | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [adapterConfigDraft, setAdapterConfigDraft] = useState<Record<string, string>>({});
@@ -99,11 +103,29 @@ export default function SettingsPage() {
   };
 
   const testAi = async () => {
+    setBusy(true);
+    setAiTesting(true);
+    setAiTestResult(null);
     setTestResult(null);
+    setError(null);
+    setNote(null);
     try {
-      setTestResult(await api.post<{ ok: boolean; note?: string; error?: { message: string } }>("/api/settings/test-ai"));
+      // Test the values in the form, not a previously saved provider.
+      await api.put("/api/settings", {
+        aiStyle: aiDraft.style === "" ? null : aiDraft.style,
+        aiBaseUrl: aiDraft.baseUrl.trim(),
+        aiModel: aiDraft.model.trim(),
+        ...(aiDraft.apiKey.trim() ? { aiApiKey: aiDraft.apiKey.trim() } : {}),
+      });
+      setAiDraft(draft => ({ ...draft, apiKey: "" }));
+      setAiTestResult(await api.post<ConnectionTestResult>("/api/settings/test-ai"));
     } catch (err) {
-      if (err instanceof ApiError) setTestResult({ ok: false, error: { message: err.body?.error ?? err.message } });
+      setAiTestResult({ ok: false, error: { message: err instanceof Error ? err.message : "Connection test failed. Try again." } });
+    } finally {
+      // Refresh the verified status without discarding unrelated form edits.
+      try { setSettings(await api.get<Settings>("/api/settings")); } catch { /* Keep the test result visible. */ }
+      setAiTesting(false);
+      setBusy(false);
     }
   };
 
@@ -410,9 +432,13 @@ export default function SettingsPage() {
           </label>
           <input id="s-aikey" type="password" placeholder="unchanged" value={aiDraft.apiKey} onChange={(e) => setAiDraft({ ...aiDraft, apiKey: e.target.value })} />
         </div>
-        <button className="btn" onClick={testAi}>
-          Test connection
+        <button className="btn" onClick={testAi} disabled={busy}>
+          {aiTesting ? "Testing…" : "Test connection"}
         </button>
+        {aiTestResult ? (
+          aiTestResult.ok ? <OkBanner message={aiTestResult.note ?? "Connection works."} />
+            : <ErrorBanner message={aiTestResult.error?.message ?? "Connection test failed. Try again."} />
+        ) : null}
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <StatusChip
             item={{
