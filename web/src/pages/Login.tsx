@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api, ApiError } from "../lib/api.js";
 import { ErrorBanner } from "../components/ui.js";
+import { Orb } from "../components/icons.js";
 
 export default function LoginPage({ onLogin }: { onLogin: () => Promise<unknown> }) {
   const [password, setPassword] = useState("");
@@ -26,7 +27,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => Promise<unknown>
     <div style={{ display: "grid", placeItems: "center", height: "100vh" }}>
       <form onSubmit={submit} className="card" style={{ width: 360, gap: 12 }} aria-label="Log in">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span className="orb" aria-hidden="true" />
+          <Orb size={34} />
           <h1 className="card-title" style={{ margin: 0 }}>
             Starlly
           </h1>
