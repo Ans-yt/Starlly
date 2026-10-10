@@ -14,6 +14,10 @@ import { IntroSequence, type IntroItem } from "../components/IntroSequence.js";
 import { LogoMark } from "../components/LogoMark.js";
 import { Icon } from "../components/icons.js";
 
+// Local-only owner hooks (never committed — kept out of git via
+// .git/info/exclude). No-op wherever the drop-in folder does not exist.
+import.meta.glob("../local/*.ts", { eager: true });
+
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
