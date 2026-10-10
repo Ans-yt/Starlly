@@ -3,6 +3,14 @@ import { openDb } from "./db/client.js";
 import { createApp } from "./http/app.js";
 
 async function main(): Promise<void> {
+  // Keep the single-process app alive: one stray rejection (e.g. an aborted
+  // provider fetch) must never take the whole server down.
+  process.on("unhandledRejection", (reason) => {
+    console.error(`[unhandledRejection] ${reason instanceof Error ? reason.stack ?? reason.message : String(reason)}`);
+  });
+  process.on("uncaughtException", (err) => {
+    console.error(`[uncaughtException] ${err.stack ?? err.message}`);
+  });
   const config = loadConfig();
   const handle = openDb(config.dbPath);
   const app = createApp({ db: handle.db, config });
