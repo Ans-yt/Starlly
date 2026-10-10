@@ -244,3 +244,7 @@ Storage: SQLite via Drizzle ORM + better-sqlite3, with migrations and backup/exp
 7. Demo data load/remove (§11).
 8. Rebooking predictor and trend alerts.
 9. Chat assistant. Files and Exa enrichment are post-setup flows.
+
+## Email design (ADR-0009)
+
+Messages supports four default HTML layouts, ordered drag-and-drop blocks, reusable custom layouts, and a persistent asset drawer with image crop/resize. Preview, test and send share a renderer. Design edits invalidate approval. The message block and existing customer-page link remain authoritative. Assets are backed up and deleted with business data; referenced images remain available. Image delivery requires a public HTTPS app address.

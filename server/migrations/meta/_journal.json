@@ -29,6 +29,20 @@
       "when": 1791570070898,
       "tag": "0003_robust_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791650909274,
+      "tag": "0004_lyrical_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791654561391,
+      "tag": "0005_ordinary_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }

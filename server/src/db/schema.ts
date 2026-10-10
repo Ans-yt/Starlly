@@ -7,6 +7,7 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+import type { EmailDesign } from "../email/design.js";
 import type { FieldSourceMap, ProfileField } from "../domain/types.js";
 
 /** Single-business app: this row always has id = 1 (GLOSSARY: Business). */
@@ -19,17 +20,29 @@ export const business = sqliteTable("business", {
   sinceDate: text("since_date"),
   googleReviewUrl: text("google_review_url").notNull().default(""),
   website: text("website").notNull().default(""),
-  socialLinks: text("social_links", { mode: "json" }).$type<Record<string, string>>().notNull().default({}),
+  socialLinks: text("social_links", { mode: "json" })
+    .$type<Record<string, string>>()
+    .notNull()
+    .default({}),
   // Per-field provenance (spec 4.2: typed | file | web)
-  fieldSources: text("field_sources", { mode: "json" }).$type<FieldSourceMap>().notNull().default({}),
-  profileFields: text("profile_fields", { mode: "json" }).$type<ProfileField[]>().notNull().default([]),
+  fieldSources: text("field_sources", { mode: "json" })
+    .$type<FieldSourceMap>()
+    .notNull()
+    .default({}),
+  profileFields: text("profile_fields", { mode: "json" })
+    .$type<ProfileField[]>()
+    .notNull()
+    .default([]),
   // Google listing stats — separate columns, never blended into corpus statistics (ADR-0001)
   placeId: text("place_id"),
   googleRating: real("google_rating"),
   googleReviewCount: integer("google_review_count"),
   // Settings (masked on read; secrets never returned to the frontend)
   emailAdapterId: text("email_adapter_id").notNull().default("copy-only"),
-  emailConfig: text("email_config", { mode: "json" }).$type<Record<string, string>>().notNull().default({}),
+  emailConfig: text("email_config", { mode: "json" })
+    .$type<Record<string, string>>()
+    .notNull()
+    .default({}),
   aiStyle: text("ai_style"), // 'anthropic' | 'openai'
   aiBaseUrl: text("ai_base_url"),
   aiModel: text("ai_model"),
@@ -83,10 +96,15 @@ export const requests = sqliteTable(
     expiresAt: text("expires_at"),
     revokedAt: text("revoked_at"),
     sentAt: text("sent_at"),
-    isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
+    isSample: integer("is_sample", { mode: "boolean" })
+      .notNull()
+      .default(false),
     createdAt: text("created_at").notNull(),
   },
-  (t) => [uniqueIndex("requests_token_idx").on(t.token), index("requests_customer_idx").on(t.customerId)],
+  (t) => [
+    uniqueIndex("requests_token_idx").on(t.token),
+    index("requests_customer_idx").on(t.customerId),
+  ],
 );
 
 export const events = sqliteTable(
@@ -98,10 +116,15 @@ export const events = sqliteTable(
       .references(() => requests.id),
     type: text("type").notNull(), // EventType
     value: text("value"), // e.g. "4" for rated
-    isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
+    isSample: integer("is_sample", { mode: "boolean" })
+      .notNull()
+      .default(false),
     createdAt: text("created_at").notNull(),
   },
-  (t) => [index("events_request_idx").on(t.requestId), index("events_type_idx").on(t.type)],
+  (t) => [
+    index("events_request_idx").on(t.requestId),
+    index("events_type_idx").on(t.type),
+  ],
 );
 
 export const reviews = sqliteTable(
@@ -115,9 +138,12 @@ export const reviews = sqliteTable(
     text: text("text").notNull(),
     requestId: text("request_id"), // links private feedback to its request
     sentiment: text("sentiment"),
+    taggingVersion: text("tagging_version"),
     sentimentConfidence: real("sentiment_confidence"),
     replied: integer("replied", { mode: "boolean" }).notNull().default(false),
-    isSample: integer("is_sample", { mode: "boolean" }).notNull().default(false),
+    isSample: integer("is_sample", { mode: "boolean" })
+      .notNull()
+      .default(false),
     createdAt: text("created_at").notNull(),
   },
   (t) => [index("reviews_source_idx").on(t.source)],
@@ -153,6 +179,7 @@ export const drafts = sqliteTable("drafts", {
   requestId: text("request_id"),
   subject: text("subject").notNull(),
   body: text("body").notNull(),
+  emailDesign: text("email_design", { mode: "json" }).$type<EmailDesign>(),
   status: text("status").notNull().default("draft"), // DraftStatus
   approvedAt: text("approved_at"),
   /** Hash of subject+body at approval time; mismatch on edit invalidates approval. */
@@ -176,6 +203,7 @@ export const sendJobs = sqliteTable(
     /** Same key reused across retries of this job — providers dedupe on it (both verified). */
     idempotencyKey: text("idempotency_key"),
     providerMessageId: text("provider_message_id"),
+    payloadHash: text("payload_hash"),
     status: text("status").notNull().default("queued"), // SendJobStatus
     attempts: integer("attempts").notNull().default(0),
     lastError: text("last_error"),
@@ -224,5 +252,22 @@ export const insightSummaries = sqliteTable("insight_summaries", {
 export const embedCache = sqliteTable("embed_cache", {
   hash: text("hash").primaryKey(),
   vector: text("vector", { mode: "json" }).$type<number[]>().notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const emailAssets = sqliteTable("email_assets", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  token: text("token").notNull().unique(),
+  data: text("data").notNull(),
+  mime: text("mime").notNull(),
+  width: integer("width").notNull(),
+  height: integer("height").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+export const emailLayouts = sqliteTable("email_layouts", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  design: text("design", { mode: "json" }).$type<EmailDesign>().notNull(),
   createdAt: text("created_at").notNull(),
 });

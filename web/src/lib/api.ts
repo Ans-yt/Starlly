@@ -6,20 +6,29 @@ export class ApiError extends Error {
   body: any;
   constructor(status: number, body: any) {
     const nestedMessage = body?.error?.message;
-    const message = typeof nestedMessage === "string" ? nestedMessage
-      : typeof body?.message === "string" ? body.message
-      : typeof body?.error === "string" ? body.error
-      : `Request failed (${status})`;
+    const message =
+      typeof nestedMessage === "string"
+        ? nestedMessage
+        : typeof body?.message === "string"
+          ? body.message
+          : typeof body?.error === "string"
+            ? body.error
+            : `Request failed (${status})`;
     super(message);
     this.status = status;
     this.body = body;
   }
 }
 
-async function request<T>(method: string, url: string, body?: unknown): Promise<T> {
+async function request<T>(
+  method: string,
+  url: string,
+  body?: unknown,
+): Promise<T> {
   const res = await fetch(url, {
     method,
-    headers: body === undefined ? undefined : { "content-type": "application/json" },
+    headers:
+      body === undefined ? undefined : { "content-type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
     credentials: "same-origin",
   });
@@ -37,6 +46,7 @@ export const api = {
   get: <T>(url: string) => request<T>("GET", url),
   post: <T>(url: string, body?: unknown) => request<T>("POST", url, body),
   patch: <T>(url: string, body?: unknown) => request<T>("PATCH", url, body),
+  delete: <T>(url: string) => request<T>("DELETE", url),
   put: <T>(url: string, body?: unknown) => request<T>("PUT", url, body),
 };
 
@@ -68,7 +78,14 @@ export interface AdapterDescription {
   id: string;
   label: string;
   capabilities: { html: boolean; replyTo: boolean; headers: boolean };
-  configFields: { key: string; label: string; type: string; required: boolean; placeholder?: string; docsUrl?: string }[];
+  configFields: {
+    key: string;
+    label: string;
+    type: string;
+    required: boolean;
+    placeholder?: string;
+    docsUrl?: string;
+  }[];
 }
 
 export interface SecretState {
@@ -117,6 +134,7 @@ export interface SendJobSummary {
 }
 
 export interface DraftRow {
+  emailDesign: import("../components/EmailStudio.js").EmailDesign | null;
   id: string;
   kind: string;
   customerId: string | null;
@@ -173,4 +191,5 @@ export interface SendResponse {
   job: SendJobSummary;
   link?: string;
   copyText?: string;
+  copyHtml?: string;
 }

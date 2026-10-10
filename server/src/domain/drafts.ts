@@ -2,8 +2,17 @@
 import crypto from "node:crypto";
 import type { DraftStatus } from "./types.js";
 
-export function hashDraftContent(subject: string, body: string): string {
-  return crypto.createHash("sha256").update(`${subject}\n\n${body}`).digest("hex");
+export function hashDraftContent(
+  subject: string,
+  body: string,
+  design?: unknown,
+): string {
+  return crypto
+    .createHash("sha256")
+    .update(
+      `${subject}\n\n${body}${design ? "\n\n" + JSON.stringify(design) : ""}`,
+    )
+    .digest("hex");
 }
 
 export interface DraftState {
@@ -14,22 +23,37 @@ export interface DraftState {
 
 export class InvalidTransition extends Error {}
 
-export function approveDraft(state: DraftState, subject: string, body: string, now: string): DraftState {
+export function approveDraft(
+  state: DraftState,
+  subject: string,
+  body: string,
+  now: string,
+  design?: unknown,
+): DraftState {
   if (state.status === "sent") {
     throw new InvalidTransition("A sent draft cannot be re-approved.");
   }
-  return { status: "approved", approvedAt: now, contentHash: hashDraftContent(subject, body) };
+  return {
+    status: "approved",
+    approvedAt: now,
+    contentHash: hashDraftContent(subject, body, design),
+  };
 }
 
 /**
  * Any content edit while approved invalidates the approval (GLOSSARY rule 2).
  * Sent drafts are immutable.
  */
-export function editDraft(state: DraftState, subject: string, body: string): DraftState {
+export function editDraft(
+  state: DraftState,
+  subject: string,
+  body: string,
+  design?: unknown,
+): DraftState {
   if (state.status === "sent") {
     throw new InvalidTransition("A sent draft cannot be edited.");
   }
-  const contentHash = hashDraftContent(subject, body);
+  const contentHash = hashDraftContent(subject, body, design);
   if (state.status === "approved" && contentHash !== state.contentHash) {
     return { status: "draft", approvedAt: null, contentHash };
   }

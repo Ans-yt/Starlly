@@ -1,15 +1,16 @@
+import { asyncRouter } from "../async-router.js";
 // Owner-curated themes (GLOSSARY: Theme). The LLM may propose; the owner edits.
 import { Router } from "express";
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { AppServices } from "../app.js";
-import { reviewThemes, themes } from "../../db/schema.js";
+import { insightSummaries, reviewThemes, themes } from "../../db/schema.js";
 
 const now = () => new Date().toISOString();
 
 export function themesRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/themes", (_req, res) => {
@@ -50,6 +51,7 @@ export function themesRouter(services: AppServices): Router {
       res.status(404).json({ error: "not_found" });
       return;
     }
+    db.delete(insightSummaries).run();
     db.update(themes)
       .set({ ...parsed.data })
       .where(eq(themes.id, row.id))
@@ -65,6 +67,7 @@ export function themesRouter(services: AppServices): Router {
       return;
     }
     db.transaction((tx) => {
+      tx.delete(insightSummaries).run();
       tx.delete(reviewThemes).where(eq(reviewThemes.themeId, id)).run();
       tx.delete(themes).where(eq(themes.id, id)).run();
     });

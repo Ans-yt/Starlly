@@ -2,6 +2,7 @@
 // quote reviews verbatim, and the quote verifier re-checks every quote.
 // Untrusted text (review text, uploaded files, web findings) is framed as
 // data, never instructions.
+import { z } from "zod";
 import type { BusinessRow } from "../../storage/business.js";
 import type { ChatMessage } from "./types.js";
 
@@ -37,7 +38,7 @@ export function buildDraftPrompt(
   const system =
     "You write short, warm, honest business messages. Never offer anything in exchange for a review. " +
     "Never ask for a 5-star rating or any specific rating. Never hide or delay the review link. " +
-    "Respond ONLY with a JSON object: {\"subject\": string, \"body\": string}.";
+    'Respond ONLY with a JSON object: {"subject": string, "body": string}.';
 
   const kindInstructions: Record<typeof kind, string> = {
     review_request:
@@ -50,7 +51,12 @@ export function buildDraftPrompt(
       "Write a short, professional reply to a customer's review. Thank them; if the review was negative, acknowledge and offer to make it right.",
   };
 
-  const userParts = [kindInstructions[kind], "", "Business profile (owner-provided):", escapeData(profile)];
+  const userParts = [
+    kindInstructions[kind],
+    "",
+    "Business profile (owner-provided):",
+    escapeData(profile),
+  ];
   if (customer) {
     userParts.push(
       "",
@@ -63,7 +69,7 @@ export function buildDraftPrompt(
   userParts.push("", UNTRUSTED_NOTICE);
 
   return [
-    { role: "system", content: system },
+    { role: "system", content: system + " " + UNTRUSTED_NOTICE },
     { role: "user", content: userParts.join("\n") },
   ];
 }
@@ -76,14 +82,21 @@ export interface ReviewForSummary {
 }
 
 /** Summarize what customers say about one theme, quoting verbatim. */
-export function buildSummaryPrompt(themeName: string, themeDescription: string, reviews: ReviewForSummary[]): ChatMessage[] {
+export function buildSummaryPrompt(
+  themeName: string,
+  themeDescription: string,
+  reviews: ReviewForSummary[],
+): ChatMessage[] {
   const system =
     "You summarize customer feedback accurately and only from provided reviews. " +
-    "Respond ONLY with a JSON object: {\"summary\": string, \"quotes\": [{\"reviewId\": string, \"quote\": string}]}. " +
+    'Respond ONLY with a JSON object: {"summary": string, "quotes": [{"reviewId": string, "quote": string}]}. ' +
     "Each quote MUST be copied verbatim (exact words) from the review with that ID. Quote at most 3 reviews.";
 
   const reviewLines = reviews
-    .map((r) => `ID ${r.id} (rating ${r.rating ?? "none"}, sentiment ${r.sentiment ?? "unknown"}):\n${r.text}`)
+    .map(
+      (r) =>
+        `ID ${r.id} (rating ${r.rating ?? "none"}, sentiment ${r.sentiment ?? "unknown"}):\n${r.text}`,
+    )
     .join("\n\n");
 
   const user = [
@@ -96,7 +109,7 @@ export function buildSummaryPrompt(themeName: string, themeDescription: string, 
   ].join("\n");
 
   return [
-    { role: "system", content: system },
+    { role: "system", content: system + " " + UNTRUSTED_NOTICE },
     { role: "user", content: user },
   ];
 }
@@ -105,16 +118,24 @@ export function buildSummaryPrompt(themeName: string, themeDescription: string, 
 export function buildChatPrompt(
   question: string,
   reviews: ReviewForSummary[],
-  context: { waitingCount: number; needsCallCount: number; funnelLast: number; funnelLabel: string },
+  context: {
+    waitingCount: number;
+    needsCallCount: number;
+    funnelLast: number;
+    funnelLabel: string;
+  },
 ): ChatMessage[] {
   const system =
     "You are Starlly's assistant for a small local business owner. Answer ONLY from the provided data. " +
-    "Respond ONLY with a JSON object: {\"answer\": string, \"quotes\": [{\"reviewId\": string, \"quote\": string}]}. " +
+    'Respond ONLY with a JSON object: {"answer": string, "quotes": [{"reviewId": string, "quote": string}]}. ' +
     "Quotes must be copied verbatim from the review with that ID; quote at most 3 reviews. " +
     "You cannot send anything — anything you draft needs the owner's approval first.";
 
   const reviewLines = reviews
-    .map((r) => `ID ${r.id} (rating ${r.rating ?? "none"}, sentiment ${r.sentiment ?? "unknown"}):\n${r.text}`)
+    .map(
+      (r) =>
+        `ID ${r.id} (rating ${r.rating ?? "none"}, sentiment ${r.sentiment ?? "unknown"}):\n${r.text}`,
+    )
     .join("\n\n");
 
   const user = [
@@ -132,7 +153,7 @@ export function buildChatPrompt(
   ].join("\n");
 
   return [
-    { role: "system", content: system },
+    { role: "system", content: system + " " + UNTRUSTED_NOTICE },
     { role: "user", content: user },
   ];
 }
@@ -152,14 +173,41 @@ export interface ChatCompletion {
   quotes: { reviewId: string; quote: string }[];
 }
 
-/** Parse the model's JSON, tolerating markdown fences. */
-export function parseJsonCompletion<T>(text: string): T | null {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+const quoteSchema = z.object({
+  reviewId: z.string().min(1).max(120),
+  quote: z.string().min(1).max(4000),
+});
+export const draftCompletionSchema = z.object({
+  subject: z.string().trim().min(1).max(200),
+  body: z.string().trim().min(1).max(20000),
+});
+export const summaryCompletionSchema = z.object({
+  summary: z.string().trim().min(1).max(12000),
+  quotes: z.array(quoteSchema).max(12),
+});
+export const chatCompletionSchema = z.object({
+  answer: z.string().trim().min(1).max(16000),
+  quotes: z.array(quoteSchema).max(12).default([]),
+});
+
+/** Parse and optionally validate model JSON, tolerating fences and provider think tags. */
+export function parseJsonCompletion<T>(
+  text: string,
+  schema?: z.ZodType<T, z.ZodTypeDef, unknown>,
+): T | null {
+  const cleaned = text
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
   try {
-    return JSON.parse(cleaned.slice(start, end + 1)) as T;
+    const value: unknown = JSON.parse(cleaned.slice(start, end + 1));
+    if (!schema) return value as T;
+    const parsed = schema.safeParse(value);
+    return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }

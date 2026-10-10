@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // Setup gate routes (spec §4.2). Status is public-but-secretless (the SPA needs
 // it on first run, before any auth exists); completion and Places choices are
 // owner actions. Keys are never returned here — only booleans and timestamps.
@@ -12,7 +13,7 @@ import { isConfigured, requireOwner } from "../auth.js";
 const now = () => new Date().toISOString();
 
 export function setupRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   // Status is public-but-secretless: the SPA must see it on first run before

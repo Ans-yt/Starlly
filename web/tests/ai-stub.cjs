@@ -15,6 +15,15 @@ const server = http.createServer((req, res) => {
       body += chunk;
     });
     req.on("end", () => {
+      const input = JSON.parse(body);
+      if (input.stream) {
+        res.writeHead(200, {"content-type":"text/event-stream"});
+        const frame = value => res.write(`data: ${JSON.stringify(value)}\n\n`);
+        frame({choices:[{delta:{reasoning_content:"Checking the saved business records."}}]});
+        setTimeout(() => frame({choices:[{delta:{content:'{"answer":"Your business'}}]}), 150);
+        setTimeout(() => {frame({choices:[{delta:{content:' has saved records.","quotes":[]}'}}]});frame({choices:[{delta:{},finish_reason:"stop"}]});res.end('data: [DONE]\n\n');}, 700);
+        return;
+      }
       res.writeHead(200, { "content-type": "application/json" });
       res.end(
         JSON.stringify({

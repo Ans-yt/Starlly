@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // Who to contact this week (ticket 017): the rule baseline over service
 // intervals, clearly labeled — no learned probabilities without real labeled
 // history (ADR-0007).
@@ -7,7 +8,7 @@ import { customers, requests } from "../../db/schema.js";
 import { learnedModelGate, recommendRebooking } from "../../domain/rebooking.js";
 
 export function rebookingRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/rebooking", (_req, res) => {

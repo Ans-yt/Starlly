@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // Business profile + settings routes. Secrets are masked on read (AGENTS rule)
 // and never appear in logs or error messages.
 import { Router } from "express";
@@ -29,7 +30,7 @@ function maskedAdapterConfig(adapterId: string, config: Record<string, string>) 
 }
 
 export function businessRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   const businessPut = z.object({

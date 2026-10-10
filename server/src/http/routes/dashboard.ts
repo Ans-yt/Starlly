@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // Dashboard API (ticket 009). Every number is computed from stored records
 // (architecture rule 7); Google listing stats stay separate from corpus
 // statistics (ADR-0001).
@@ -11,7 +12,7 @@ import { computeFunnel } from "../../domain/funnel.js";
 import type { EventRecord } from "../../domain/events.js";
 
 export function dashboardRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/dashboard", (req, res) => {

@@ -6,7 +6,7 @@ import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { AppDatabase } from "../client.js";
-import { business, customers, events, requests, reviews, themes, reviewThemes } from "../schema.js";
+import { insightSummaries, business, customers, events, requests, reviews, themes, reviewThemes } from "../schema.js";
 
 const eventType = z.enum(["opened", "rated", "google_click", "call_requested"]);
 
@@ -506,6 +506,7 @@ export function unloadSampleData(db: AppDatabase): { removed: { customers: numbe
     };
     for (const e of sampleEvents) tx.delete(events).where(eq(events.id, e.id)).run();
     // reviewThemes rows referencing sample reviews/themes must go first (FK).
+    if (sampleReviews.length || sampleThemes.length) tx.delete(insightSummaries).run();
     const sampleReviewIds = new Set(sampleReviews.map((r) => r.id));
     const sampleThemeIds = new Set(sampleThemes.map((t) => t.id));
     if (sampleReviewIds.size > 0 || sampleThemeIds.size > 0) {

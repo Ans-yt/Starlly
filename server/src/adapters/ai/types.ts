@@ -16,6 +16,7 @@ export interface ChatMessage {
 export interface AiChatOptions {
   maxTokens?: number;
   temperature?: number;
+  signal?: AbortSignal;
 }
 
 export interface NormalizedAiError {
@@ -28,8 +29,11 @@ export type AiTestResult = { ok: true; note?: string } | { ok: false; error: Nor
 
 export type AiChatResult = { text: string } | { error: NormalizedAiError };
 
+export interface AiStreamDelta { text?: string; reasoning?: string; }
+
 export interface AiAdapter {
   style: string; // "openai" | "anthropic"
+  stream?(config: AiConfig, messages: ChatMessage[], options?: AiChatOptions): AsyncGenerator<AiStreamDelta>;
   test(config: AiConfig): Promise<AiTestResult>;
   chat(config: AiConfig, messages: ChatMessage[], options?: AiChatOptions): Promise<AiChatResult>;
 }

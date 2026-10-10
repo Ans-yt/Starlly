@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // Public customer-page API (ADR-0005, ticket 007). The only unauthenticated
 // surface: token-guarded, rate-limited, minimal data exposure. Never returns
 // customer contact details.
@@ -76,7 +77,7 @@ function pageState(services: AppServices, requestId: string) {
 }
 
 export function publicRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/requests/:token", publicGetLimiter, (req, res) => {

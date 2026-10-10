@@ -2,10 +2,20 @@
 // Edit → Preview → Check policy → Send test to me → Approve → Send.
 // The approval state is the server's truth; editing an approved draft visibly
 // reverts it to Draft (GLOSSARY: any edit invalidates approval).
+import EmailStudio, {
+  EmailPreview,
+  type EmailDesign,
+} from "../components/EmailStudio.js";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api, ApiError, type DraftRow, type SendResponse } from "../lib/api.js";
-import { EmptyState, ErrorBanner, Modal, OkBanner, Spinner } from "../components/ui.js";
+import {
+  EmptyState,
+  ErrorBanner,
+  Modal,
+  OkBanner,
+  Spinner,
+} from "../components/ui.js";
 
 interface PolicyIssue {
   rule: string;
@@ -19,6 +29,7 @@ export default function MessagesPage() {
   const [drafts, setDrafts] = useState<DraftRow[] | null>(null);
   const [selected, setSelected] = useState<DraftRow | null>(null);
   const [subject, setSubject] = useState("");
+  const [emailDesign, setEmailDesign] = useState<EmailDesign | null>(null);
   const [body, setBody] = useState("");
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -49,6 +60,7 @@ export default function MessagesPage() {
     setSelected(d);
     setSubject(d.subject);
     setBody(d.body);
+    setEmailDesign(d.emailDesign);
     setDirty(false);
     setPolicyIssues(null);
     setNote(null);
@@ -73,6 +85,7 @@ export default function MessagesPage() {
           if (!dirty) {
             setSubject(found.subject);
             setBody(found.body);
+            setEmailDesign(found.emailDesign);
           }
         }
       }
@@ -81,32 +94,52 @@ export default function MessagesPage() {
     }
   };
 
-  const saveEdit = async () => {
-    if (!selected) return;
-    setBusy(true);
+  const saveEdit = async (manageBusy = true) => {
+    if (!selected) return false;
+    if (manageBusy) setBusy(true);
     setError(null);
     try {
-      const res = await api.patch<{ status: string; approvalInvalidated: boolean }>(`/api/drafts/${selected.id}`, {
+      const res = await api.patch<{
+        status: string;
+        approvalInvalidated: boolean;
+      }>(`/api/drafts/${selected.id}`, {
         subject,
         body,
+        emailDesign,
       });
       setDirty(false);
       if (res.approvalInvalidated) {
-        setNote("Edited after approval — the approval was removed. Approve again before sending.");
+        setNote(
+          "Edited after approval — the approval was removed. Approve again before sending.",
+        );
       }
       await loadDrafts();
+      if (res.approvalInvalidated)
+        setNote(
+          "Edited after approval — the approval was removed. Approve again before sending.",
+        );
+      return true;
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not save.");
+      return false;
     } finally {
-      setBusy(false);
+      if (manageBusy) setBusy(false);
     }
   };
 
   const runPolicy = async () => {
     if (!selected) return;
-    if (dirty) await saveEdit();
-    const res = await api.post<{ issues: PolicyIssue[] }>(`/api/drafts/${selected.id}/policy`);
-    setPolicyIssues(res.issues);
+    if (dirty && !(await saveEdit())) return;
+    try {
+      const res = await api.post<{ issues: PolicyIssue[] }>(
+        `/api/drafts/${selected.id}/policy`,
+      );
+      setPolicyIssues(res.issues);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Could not check policy.",
+      );
+    }
   };
 
   const testSend = async () => {
@@ -114,9 +147,15 @@ export default function MessagesPage() {
     setBusy(true);
     setError(null);
     try {
-      if (dirty) await saveEdit();
-      const res = await api.post<{ outcome: string }>(`/api/drafts/${selected.id}/test-send`);
-      setNote(res.outcome === "accepted" ? "Test email sent to you." : `Test send: ${res.outcome}.`);
+      if (dirty && !(await saveEdit(false))) return;
+      const res = await api.post<{ outcome: string }>(
+        `/api/drafts/${selected.id}/test-send`,
+      );
+      setNote(
+        res.outcome === "accepted"
+          ? "Test email sent to you."
+          : `Test send: ${res.outcome}.`,
+      );
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Test send failed.");
     } finally {
@@ -128,7 +167,7 @@ export default function MessagesPage() {
     if (!selected) return;
     setBusy(true);
     try {
-      if (dirty) await saveEdit();
+      if (dirty && !(await saveEdit(false))) return;
       await api.post(`/api/drafts/${selected.id}/approve`);
       await refreshDrafts();
       setNote("Approved. Sending is now enabled.");
@@ -144,7 +183,9 @@ export default function MessagesPage() {
     setBusy(true);
     setError(null);
     try {
-      const res = await api.post<SendResponse>(`/api/drafts/${selected.id}/send`);
+      const res = await api.post<SendResponse>(
+        `/api/drafts/${selected.id}/send`,
+      );
       await refreshDrafts();
       if (res.outcome === "accepted") {
         if (res.copyText) {
@@ -156,7 +197,10 @@ export default function MessagesPage() {
         setNote("This draft was already sent.");
       } else if (res.outcome === "ambiguous") {
         setAmbiguousJobId(res.job.id);
-        setError(res.job.lastError ?? "The provider timed out. The message may or may not have been sent — decide below.");
+        setError(
+          res.job.lastError ??
+            "The provider timed out. The message may or may not have been sent — decide below.",
+        );
       } else {
         setError(res.job.lastError ?? "Send failed.");
       }
@@ -180,7 +224,11 @@ export default function MessagesPage() {
     await api.post(`/api/send-jobs/${ambiguousJobId}/resolve`, { decision });
     setAmbiguousJobId(null);
     await refreshDrafts();
-    setNote(decision === "sent" ? "Marked as sent." : "Marked as not delivered — you can retry from the draft.");
+    setNote(
+      decision === "sent"
+        ? "Marked as sent."
+        : "Marked as not delivered — you can retry from the draft.",
+    );
     setBusy(false);
   };
 
@@ -190,11 +238,13 @@ export default function MessagesPage() {
   const isSent = selected?.status === "sent";
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16, maxWidth: 1150, alignItems: "start" }}>
+    <div className="messages-layout">
       <aside className="card" style={{ padding: 12, gap: 8 }}>
         <strong style={{ fontSize: "0.85rem" }}>Drafts</strong>
         {drafts.length === 0 ? (
-          <span className="card-sub">No drafts yet — create one from Customers → Send request.</span>
+          <span className="card-sub">
+            No drafts yet — create one from Customers → Send request.
+          </span>
         ) : (
           drafts.map((d) => (
             <button
@@ -205,15 +255,22 @@ export default function MessagesPage() {
                 flexDirection: "column",
                 alignItems: "flex-start",
                 gap: 2,
-                background: selected?.id === d.id ? "var(--color-primary-soft)" : undefined,
-                borderColor: selected?.id === d.id ? "var(--color-primary)" : undefined,
+                background:
+                  selected?.id === d.id
+                    ? "var(--color-primary-soft)"
+                    : undefined,
+                borderColor:
+                  selected?.id === d.id ? "var(--color-primary)" : undefined,
                 textAlign: "left",
               }}
               onClick={() => selectDraft(d)}
             >
-              <strong style={{ fontSize: "0.8rem" }}>{d.subject.slice(0, 40) || "(no subject)"}</strong>
+              <strong style={{ fontSize: "0.8rem" }}>
+                {d.subject.slice(0, 40) || "(no subject)"}
+              </strong>
               <span className="card-sub">
-                {d.kind.replace("_", " ")} · <span className={`badge badge-${d.status}`}>{d.status}</span>
+                {d.kind.replace("_", " ")} ·{" "}
+                <span className={`badge badge-${d.status}`}>{d.status}</span>
               </span>
             </button>
           ))
@@ -222,14 +279,27 @@ export default function MessagesPage() {
 
       <section className="card">
         {!selected ? (
-          <EmptyState title="No draft selected" hint="Pick a draft on the left, or send a request from the Customers page." />
+          <EmptyState
+            title="No draft selected"
+            hint="Pick a draft on the left, or send a request from the Customers page."
+          />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 8,
+                flexWrap: "wrap",
+              }}
+            >
               <h2 className="card-title" style={{ margin: 0 }}>
                 {selected.kind.replace("_", " ")}
               </h2>
-              <span className={`badge badge-${selected.status}`}>{selected.status}</span>
+              <span className={`badge badge-${selected.status}`}>
+                {selected.status}
+              </span>
             </div>
             {note ? <OkBanner message={note} /> : null}
             {error ? <ErrorBanner message={error} /> : null}
@@ -247,10 +317,12 @@ export default function MessagesPage() {
               />
             </div>
             <div className="field">
-              <label htmlFor="m-body">Body — use {"{{link}}"} where the customer page link goes</label>
+              <label htmlFor="m-body">
+                Body — use {"{{link}}"} where the customer page link goes
+              </label>
               <textarea
                 id="m-body"
-                rows={10}
+                rows={3}
                 value={body}
                 disabled={isSent}
                 onChange={(e) => {
@@ -260,27 +332,67 @@ export default function MessagesPage() {
               />
             </div>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button className="btn" disabled={!dirty || isSent || busy} onClick={saveEdit}>
+            <div
+              className="email-send-actions"
+              style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+            >
+              <button
+                className="btn"
+                disabled={!dirty || isSent || busy}
+                onClick={() => void saveEdit()}
+              >
                 Save edit
               </button>
-              <button className="btn" disabled={isSent} onClick={() => setPreviewOpen(true)}>
+              <button
+                className="btn"
+                disabled={isSent}
+                onClick={() => setPreviewOpen(true)}
+              >
                 Preview
               </button>
-              <button className="btn" disabled={isSent || busy} onClick={runPolicy}>
+              <button
+                className="btn"
+                disabled={isSent || busy}
+                onClick={runPolicy}
+              >
                 Check policy
               </button>
-              <button className="btn" disabled={isSent || busy} onClick={testSend}>
+              <button
+                className="btn"
+                disabled={isSent || busy}
+                onClick={testSend}
+              >
                 Send test to me
               </button>
-              <button className="btn" disabled={isSent || dirty || busy} onClick={approve}>
+              <button
+                className="btn"
+                disabled={isSent || dirty || busy}
+                onClick={approve}
+              >
                 {isApproved ? "Approved ✓" : "Approve"}
               </button>
-              <button className="btn btn-primary" disabled={!isApproved || busy} onClick={send}>
+              <button
+                className="btn btn-primary"
+                disabled={!isApproved || dirty || busy}
+                onClick={send}
+              >
                 Approve and send →
               </button>
             </div>
-            <span className="card-sub">Every customer gets the same Google link.</span>
+            <EmailStudio
+              draftId={selected.id}
+              body={body}
+              design={emailDesign}
+              disabled={!!isSent || busy}
+              onChange={(d) => {
+                setEmailDesign(d);
+                setDirty(true);
+                setPolicyIssues(null);
+              }}
+            />
+            <span className="card-sub">
+              Every customer gets the same Google link.
+            </span>
 
             {policyIssues ? (
               policyIssues.length === 0 ? (
@@ -300,16 +412,28 @@ export default function MessagesPage() {
             ) : null}
 
             {ambiguousJobId ? (
-              <div className="card" style={{ background: "var(--color-warn-soft)", border: "none" }}>
+              <div
+                className="card"
+                style={{ background: "var(--color-warn-soft)", border: "none" }}
+              >
                 <strong>Timeout — the provider outcome is unknown.</strong>
                 <p className="card-sub" style={{ marginTop: 4 }}>
-                  The message may or may not have been sent. Decide what happened — this is never retried automatically.
+                  The message may or may not have been sent. Decide what
+                  happened — this is never retried automatically.
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button className="btn" disabled={busy} onClick={() => void resolveAmbiguous("sent")}>
+                  <button
+                    className="btn"
+                    disabled={busy}
+                    onClick={() => void resolveAmbiguous("sent")}
+                  >
                     It was sent — mark as sent
                   </button>
-                  <button className="btn btn-danger" disabled={busy} onClick={() => void resolveAmbiguous("failed")}>
+                  <button
+                    className="btn btn-danger"
+                    disabled={busy}
+                    onClick={() => void resolveAmbiguous("failed")}
+                  >
                     It failed — allow retry
                   </button>
                 </div>
@@ -319,8 +443,12 @@ export default function MessagesPage() {
             {selected.sendJob ? (
               <span className="card-sub">
                 Last send: {selected.sendJob.status}
-                {selected.sendJob.providerMessageId ? ` · message id ${selected.sendJob.providerMessageId}` : ""}
-                {selected.sendJob.lastError ? ` · ${selected.sendJob.lastError}` : ""}
+                {selected.sendJob.providerMessageId
+                  ? ` · message id ${selected.sendJob.providerMessageId}`
+                  : ""}
+                {selected.sendJob.lastError
+                  ? ` · ${selected.sendJob.lastError}`
+                  : ""}
               </span>
             ) : null}
           </div>
@@ -329,20 +457,47 @@ export default function MessagesPage() {
 
       {previewOpen && selected ? (
         <Modal title="Preview" onClose={() => setPreviewOpen(false)}>
-          <div style={{ background: "var(--color-surface-2)", borderRadius: 12, padding: 16, whiteSpace: "pre-wrap" }}>
-            <strong>{subject}</strong>
-            <p style={{ margin: "8px 0 0" }}>{body}</p>
-          </div>
+          <strong>{subject}</strong>
+          <EmailPreview
+            draftId={selected.id}
+            body={body}
+            design={emailDesign}
+          />
         </Modal>
       ) : null}
 
       {copyOpen ? (
         <Modal title="Copy your email" onClose={() => setCopyOpen(null)}>
-          <p className="card-sub">Copy only mode — nothing was dispatched. Copy this text into your email app:</p>
-          <textarea readOnly rows={10} value={copyOpen.copyText ?? ""} style={{ width: "100%" }} />
+          <p className="card-sub">
+            Copy only mode — nothing was dispatched. Copy this text into your
+            email app:
+          </p>
+          <textarea
+            readOnly
+            rows={10}
+            value={copyOpen.copyText ?? ""}
+            style={{ width: "100%" }}
+          />
           <p className="card-sub">
             Customer page link: <code>{copyOpen.link}</code>
           </p>
+          {copyOpen.copyHtml && (
+            <button
+              className="btn"
+              onClick={() => {
+                const url = URL.createObjectURL(
+                  new Blob([copyOpen.copyHtml!], { type: "text/html" }),
+                );
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "customer-email.html";
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              }}
+            >
+              Download HTML email
+            </button>
+          )}
           <button
             className="btn btn-primary"
             onClick={() => {

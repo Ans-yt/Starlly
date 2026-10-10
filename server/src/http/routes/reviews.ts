@@ -1,3 +1,5 @@
+import { parseCsv } from "../../domain/csv.js";
+import { asyncRouter } from "../async-router.js";
 // Review corpus import (spec §5.3): pasted text and CSV upload become
 // corpus rows (GLOSSARY: public review vs private feedback). Private feedback
 // arrives via the customer page, not here.
@@ -6,7 +8,7 @@ import crypto from "node:crypto";
 import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import type { AppServices } from "../app.js";
-import { reviewThemes, reviews, themes } from "../../db/schema.js";
+import { insightSummaries, reviewThemes, reviews, themes } from "../../db/schema.js";
 import { tagUntaggedReviews, isTransformersMissingError, TaggerError } from "../../inference/tagger.js";
 import { embedCached } from "../../inference/embedder.js";
 import { cosineSimilarity } from "../../inference/tagging.js";
@@ -33,7 +35,7 @@ function reviewRow(row: typeof reviews.$inferSelect) {
 }
 
 export function reviewsRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/reviews", (req, res) => {
@@ -90,12 +92,13 @@ export function reviewsRouter(services: AppServices): Router {
       res.status(400).json({ error: "validation", details: parsed.error.flatten() });
       return;
     }
-    const lines = parsed.data.csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
+    let lines: string[][];
+    try { lines = parseCsv(parsed.data.csv); } catch {res.status(400).json({error:"validation",message:"CSV contains an invalid quoted field."});return;}
     if (lines.length < 2) {
       res.status(400).json({ error: "validation", message: "CSV needs a header row and at least one review." });
       return;
     }
-    const header = lines[0]!.split(",").map((h) => h.trim().toLowerCase());
+    const header = lines[0]!.map((h) => h.trim().toLowerCase());
     const idx = (name: string) => header.indexOf(name);
     if (idx("text") < 0) {
       res.status(400).json({ error: "validation", message: "CSV must have a 'text' column." });
@@ -104,7 +107,7 @@ export function reviewsRouter(services: AppServices): Router {
     let imported = 0;
     const errors: { line: number; message: string }[] = [];
     for (let i = 1; i < lines.length; i++) {
-      const fields = lines[i]!.split(",");
+      const fields = lines[i]!;
       const text = idx("text") >= 0 ? (fields[idx("text")] ?? "").trim() : "";
       if (!text) {
         errors.push({ line: i + 1, message: "Missing text." });
@@ -112,6 +115,7 @@ export function reviewsRouter(services: AppServices): Router {
       }
       const ratingRaw = idx("rating") >= 0 ? (fields[idx("rating")] ?? "").trim() : "";
       const rating = Number(ratingRaw);
+      if (text.length > 20000 || (ratingRaw && (!Number.isInteger(rating) || rating < 1 || rating > 5))) {errors.push({line:i+1,message:"Review text is too long or rating must be an integer 1–5."});continue;}
       const ts = now();
       db.insert(reviews)
         .values({
@@ -137,6 +141,7 @@ export function reviewsRouter(services: AppServices): Router {
       return;
     }
     db.transaction((tx) => {
+      tx.delete(insightSummaries).run();
       tx.delete(reviewThemes).where(eq(reviewThemes.reviewId, id)).run();
       tx.delete(reviews).where(eq(reviews.id, id)).run();
     });

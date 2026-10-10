@@ -1,3 +1,4 @@
+import { recoverSendJobs } from "./sending/outbox.js";
 import { loadConfig } from "./config.js";
 import { openDb } from "./db/client.js";
 import { createApp } from "./http/app.js";
@@ -13,6 +14,7 @@ async function main(): Promise<void> {
   });
   const config = loadConfig();
   const handle = openDb(config.dbPath);
+  recoverSendJobs(handle.db);
   const app = createApp({ db: handle.db, config });
   // Local-only owner hooks (never committed — kept out of git via
   // .git/info/exclude). The computed specifier keeps tsc quiet when the

@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // AI routes (ticket 015): LLM drafting into DRAFTS (never direct-send) and
 // quote-verified theme summaries. Untrusted text never becomes instructions.
 import { Router } from "express";
@@ -14,7 +15,7 @@ import { resolveAiSettings } from "../../adapters/ai/registry.js";
 import {
   buildDraftPrompt,
   buildSummaryPrompt,
-  parseJsonCompletion,
+  parseJsonCompletion, draftCompletionSchema, summaryCompletionSchema,
   type DraftCompletion,
   type SummaryCompletion,
 } from "../../adapters/ai/prompts.js";
@@ -28,7 +29,7 @@ function notConfigured(res: import("express").Response): void {
 }
 
 export function aiRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   // Draft with the LLM → always lands as a Draft needing owner approval.
@@ -60,12 +61,12 @@ export function aiRouter(services: AppServices): Router {
       serviceType: customer.serviceType,
       lastJobDate: customer.lastJobDate,
     } : null);
-    const result = await resolved.adapter.chat(resolved.config, messages, { maxTokens: 700, temperature: 0.7 });
+    const result = await resolved.adapter.chat(resolved.config, messages, { maxTokens: 4096, temperature: 0.7 });
     if ("error" in result) {
       res.status(502).json({ error: "ai_failed", message: `${result.error.kind}: ${result.error.message}` });
       return;
     }
-    const completion = parseJsonCompletion<DraftCompletion>(result.text);
+    const completion = parseJsonCompletion<DraftCompletion>(result.text, draftCompletionSchema);
     if (!completion?.subject || !completion.body) {
       res.status(502).json({ error: "ai_failed", message: "The model did not return a usable draft." });
       return;
@@ -111,7 +112,7 @@ export function aiRouter(services: AppServices): Router {
     const byId = new Map(corpusRows.map((r) => [r.id, r]));
     const themeReviews = tagged
       .map((t) => byId.get(t.reviewId))
-      .filter((r): r is NonNullable<typeof r> => Boolean(r));
+      .filter((r): r is NonNullable<typeof r> => Boolean(r)).sort((a,b) => b.createdAt.localeCompare(a.createdAt));
     if (themeReviews.length === 0) {
       res.status(400).json({ error: "no_reviews", message: "No tagged reviews for this theme yet." });
       return;
@@ -126,21 +127,21 @@ export function aiRouter(services: AppServices): Router {
     const messages = buildSummaryPrompt(
       theme.name,
       theme.description,
-      themeReviews.map((r) => ({ id: r.id, text: r.text, rating: r.rating, sentiment: r.sentiment })),
+      themeReviews.slice(0, 40).map((r) => ({ id: r.id, text: r.text.slice(0, 2000), rating: r.rating, sentiment: r.sentiment })),
     );
-    const result = await resolved.adapter.chat(resolved.config, messages, { maxTokens: 700, temperature: 0.3 });
+    const result = await resolved.adapter.chat(resolved.config, messages, { maxTokens: 4096, temperature: 0.3 });
     if ("error" in result) {
       res.status(502).json({ error: "ai_failed", message: `${result.error.kind}: ${result.error.message}` });
       return;
     }
-    const completion = parseJsonCompletion<SummaryCompletion>(result.text);
+    const completion = parseJsonCompletion<SummaryCompletion>(result.text, summaryCompletionSchema);
     if (!completion?.summary || !Array.isArray(completion.quotes)) {
       res.status(502).json({ error: "ai_failed", message: "The model did not return a usable summary." });
       return;
     }
 
     // Grounding gate: verify every quote; drop the ones that fail.
-    const corpus: CorpusReview[] = corpusRows.map((r) => ({ id: r.id, text: r.text }));
+    const corpus: CorpusReview[] = themeReviews.slice(0, 40).map((r) => ({ id: r.id, text: r.text.slice(0, 2000) }));
     const verification = verifyInsightQuotes(
       completion.quotes.map((q) => ({ reviewId: q.reviewId, quote: q.quote })),
       corpus,

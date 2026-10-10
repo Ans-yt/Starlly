@@ -41,16 +41,18 @@ async function main(): Promise<void> {
   const { themes, records } = loadFixtures();
   console.log(`Evaluating ${records.length} records against ${themes.length} themes (${useStub ? "STUB embedder — not meaningful" : "real model"}).\n`);
 
+  let handle: ReturnType<typeof openDb> | undefined;
   let embed: EmbedFn;
   if (useStub) {
     embed = stubEmbed;
   } else {
     const config = loadConfig();
-    const handle = openDb(config.dbPath); // cache DB for embeddings
-    embed = (texts) => embedCached(handle.db, texts);
+    handle = openDb(config.dbPath); // cache DB for embeddings
+    embed = (texts) => embedCached(handle!.db, texts);
   }
 
-  const report: EvalReport = await runEval(records, themes, embed);
+  let report: EvalReport;
+  try { report = await runEval(records, themes, embed); } finally { handle?.close(); }
 
   console.log("Per-theme results (tagging):");
   console.table(

@@ -1,3 +1,8 @@
+import {
+  emailStudioRouter,
+  publicEmailAssetsRouter,
+} from "./routes/email-studio.js";
+import { SendPayloadConflict } from "../sending/outbox.js";
 import express, { type Express } from "express";
 import cookieParser from "cookie-parser";
 import fs from "node:fs";
@@ -30,12 +35,14 @@ export interface AppServices {
 export function createApp(services: AppServices): Express {
   const app = express();
   app.disable("x-powered-by");
+  app.use("/api/data/import", express.json({ limit: "64mb" }));
   app.use(express.json({ limit: "2mb" }));
   app.use(cookieParser());
 
   // Unauthenticated surfaces (ADR-0005): health, auth, and the token-guarded public routes.
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
   app.use("/api/auth", authRouter(services));
+  app.use("/api/public", publicEmailAssetsRouter(services));
   app.use("/api/public", publicRouter(services));
   // Setup status is public-but-secretless; setup mutations re-check ownership.
   app.use("/api", setupRouter(services));
@@ -44,20 +51,29 @@ export function createApp(services: AppServices): Express {
   // answer 503 setup_incomplete — the SPA redirects every route to /setup.
   // Once completed, the latch stays set: deleting data later does not force
   // the owner through onboarding again (login still protects everything).
-  const requireSetupComplete = (req: Request, res: Response, next: NextFunction): void => {
+  const requireSetupComplete = (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): void => {
     const row = getBusinessRow(services.db);
-    const complete = Boolean(row.setupCompletedAt) || evaluateSetup(setupFactsOf(row)).setupComplete;
+    const complete =
+      Boolean(row.setupCompletedAt) ||
+      evaluateSetup(setupFactsOf(row)).setupComplete;
     if (complete) {
       next();
       return;
     }
-    res.status(503).json({ error: "setup_incomplete", message: "Finish setup first." });
+    res
+      .status(503)
+      .json({ error: "setup_incomplete", message: "Finish setup first." });
   };
 
   // Owner API — open only in first-run setup mode; session-guarded once a password exists.
   app.use("/api", requireOwner(services.db));
   app.use("/api", businessRouter(services));
   app.use("/api", draftsRouter(services));
+  app.use("/api", emailStudioRouter(services));
   app.use("/api", requireSetupComplete);
   app.use("/api", customersRouter(services));
   app.use("/api", dashboardRouter(services));
@@ -80,8 +96,28 @@ export function createApp(services: AppServices): Express {
 
   // Error handler — message only, never secrets.
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error(`[error] ${err.message}`);
-    res.status(500).json({ error: "internal_error" });
+    if (err instanceof SendPayloadConflict) {
+      res
+        .status(409)
+        .json({ error: "send_payload_changed", message: err.message });
+      return;
+    }
+    const aiRequest = [
+      "/api/chat",
+      "/api/drafts/ai-draft",
+      "/api/insights/summarize",
+    ].includes(_req.path);
+    console.error(
+      `[error] ${aiRequest ? "AI request failed" : "Request failed"}`,
+    );
+    res
+      .status(aiRequest ? 502 : 500)
+      .json({
+        error: aiRequest ? "ai_failed" : "internal_error",
+        message: aiRequest
+          ? "The AI request failed. Please try again."
+          : "The request could not be completed.",
+      });
   });
 
   return app;

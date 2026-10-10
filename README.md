@@ -72,3 +72,56 @@ Failures stay on the page with a readable message. Changing the AI connection
 fields or failing a later test clears its Connected status until a fresh test
 passes. Minimal OpenAI-style connection probes support token-limited reasoning
 models; normal chat still requires answer text. Keys remain masked on reads.
+
+
+### AI reliability and streaming chat
+
+Chat now streams replies from OpenAI-compatible Chat Completions and Anthropic
+Messages providers. Provider-supplied reasoning is separate from the answer and
+collapsed by default. Stop cancels the upstream request; closing chat also cancels
+it. The last twelve completed conversation messages provide bounded context.
+Providers that return ordinary JSON despite a streaming request still work.
+Network failures, truncated streams and invalid completion fields show a usable
+error instead of leaving the request waiting. A two-minute deadline covers the
+whole AI response, including its body. Generation allows 4,096 output tokens so
+reasoning models have room to produce an answer.
+
+Review quotations are checked against the evidence actually supplied to the
+model. Entirely fabricated quotations reject the answer. Citation labels count
+verified review sources; responses without citations are labelled as business
+records. This checks quotation provenance, not the truth of every narrative claim.
+Chat evidence is capped at eight reviews of 2,000 characters each; summaries use
+the forty newest tagged reviews, capped at 2,000 characters each. Chat retrieval
+combines keywords and matching theme assignments. Model accuracy still needs the
+real evaluation corpus; passing deterministic tests is not an accuracy benchmark.
+
+Local embedding work is serialized into batches of at most 32 texts. Cache keys
+include the model and preprocessing version, cache misses are deduplicated, and
+vectors are validated. A failed or timed-out worker is discarded so later work
+can start a replacement. Successful tagging records a theme/model version even
+when no theme matches. Editing themes makes existing classifications eligible
+for recomputation. Re-tagging computes replacements before removing old labels.
+
+The new migration adds review tagging versions and send-job payload fingerprints.
+Startup applies migrations automatically. Retries require current approval and
+policy checks; a previously attempted job cannot reuse its idempotency key for
+different content or a different provider. Create a new draft for such changes.
+Older attempted jobs without a fingerprint require a new draft for retry.
+Interrupted send jobs become ambiguous on startup and require an owner decision;
+they are never automatically re-sent. Provider acceptance and related draft/request
+updates are persisted together, and startup reconciles older acceptance gaps.
+
+Exported backups omit provider credentials and include insight summaries. Restore
+keeps the current local provider settings. Data deletion is transactional and
+removes dependent summaries first. Theme/review changes invalidate stored summary
+evidence. Review CSV import supports quoted commas, escaped quotes and multiline
+fields, with text/rating validation.
+
+Protocol references: [Chat Completions streaming](https://developers.openai.com/api/docs/guides/streaming-responses)
+and [Anthropic Messages streaming](https://platform.claude.com/docs/en/build-with-claude/streaming).
+
+### Customer email designs
+
+In Messages, choose Branded, Letter, Spotlight or Compact. Select blocks to edit them, drag the handles to reorder, or add text, headings, images, buttons, dividers and space. Save layout to reuse your design; Save edit persists it on the draft. Changing any design removes approval.
+
+Open Assets to upload images, crop/resize them, and drag saved images into the email. Logo, banner and photo formats are included. Set `PUBLIC_BASE_URL` to the app’s public HTTPS address before sending emails containing images. Both Agentboxd and OpenMail receive HTML plus a text fallback. Copy only can download the HTML email. Assets and saved layouts are included in backups.

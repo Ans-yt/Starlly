@@ -45,7 +45,7 @@ function Shell() {
   const { status } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const head = HEADS[location.pathname] ?? HEADS["/"]!;
+  const head = HEADS[location.pathname] ?? HEADS[`/${location.pathname.split("/")[1]}`] ?? HEADS["/"]!;
 
   useEffect(() => {
     api.get<Business>("/api/business").then(setBusiness).catch(() => undefined);

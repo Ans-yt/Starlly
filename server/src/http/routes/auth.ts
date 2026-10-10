@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 import { Router } from "express";
 import { z } from "zod";
 import type { AppServices } from "../app.js";
@@ -14,7 +15,7 @@ import {
 } from "../auth.js";
 
 export function authRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/status", (req, res) => {

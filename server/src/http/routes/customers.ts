@@ -1,3 +1,4 @@
+import { asyncRouter } from "../async-router.js";
 // Customers API (ticket 004): CRUD + CSV import. Consent is enforced in the
 // domain (consent.ts) — the send path refuses customers without it.
 import { Router } from "express";
@@ -19,7 +20,7 @@ const customerPost = z.object({
 });
 
 export function customersRouter(services: AppServices): Router {
-  const router = Router();
+  const router = asyncRouter();
   const { db } = services;
 
   router.get("/customers", (req, res) => {
