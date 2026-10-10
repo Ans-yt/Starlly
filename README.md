@@ -1,3 +1,4 @@
+<p align="center">  <img src="assets/og-image-1200x630.png" alt="Starlly" width="720"></p>
 # Starlly
 
 Starlly helps a small local business collect more Google reviews from happy customers and learn from all the feedback. The owner sends one review request per finished job, sees ratings and themes, and gets a ranked list of what to fix first. **The AI drafts; the owner approves.**
