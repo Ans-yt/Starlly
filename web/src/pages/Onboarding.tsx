@@ -7,9 +7,11 @@
 // until every mandatory item passes. Every step has a "Where do I get this?"
 // link where relevant, and the server re-validates everything.
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api, ApiError, type AdapterDescription, type Settings } from "../lib/api.js";
 import { ErrorBanner, OkBanner, Spinner } from "../components/ui.js";
-import WorksWheel from "../components/WorksWheel.js";
+import { IntroSequence, type IntroItem } from "../components/IntroSequence.js";
+import { LogoMark } from "../components/LogoMark.js";
 import { Icon } from "../components/icons.js";
 
 const prefersReducedMotion = () =>
@@ -69,27 +71,31 @@ export function StatusChip({ item }: { item: SetupItem | undefined }) {
   );
 }
 
-const INTRO_ITEMS = [
+// Intro copy — EXACTLY as specified by the owner (no approval language).
+const INTRO_HEADLINE = "Collect more Google reviews. Learn from every word of feedback.";
+const INTRO_ITEMS: IntroItem[] = [
   {
     title: "Ask",
-    body: "One review request per finished job. The AI drafts it — nothing sends without your approval.",
-    icon: "spark",
+    body: "After each job, your customer gets a branded message with one link. No app, no account.",
+    icon: "send",
   },
   {
     title: "Understand",
-    body: "Themes, trends and counts, computed from your own reviews and private feedback.",
+    body: "See your rating and what customers keep praising or complaining about, with the real reviews as proof.",
     icon: "chart",
   },
   {
     title: "Act",
-    body: "See who to call, who to email, and what to fix first.",
-    icon: "phone",
+    body: "A short list of what to fix first, who to call back, and who is due for another visit.",
+    icon: "spark",
   },
 ];
 
 const STEP_NAMES = ["Loading", "Business", "AI provider", "Email provider", "Google Places", "Exa", "Test email", "Done"];
 
 export default function OnboardingPage({ onDone }: { onDone: () => Promise<unknown> }) {
+  const navigate = useNavigate();
+  const navigateToDashboard = useCallback(() => navigate("/"), [navigate]);
   const [step, setStep] = useState<number | null>(null); // null = restoring state
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -356,8 +362,14 @@ export default function OnboardingPage({ onDone }: { onDone: () => Promise<unkno
     <div className="setup-page">
       {step === 0 ? (
         <LoadingScreen
-          onStart={() => setStep(1)}
-          resumeLabel={status?.items.business.done ? "Continue setup" : "Start setup"}
+          onProceed={() => (status?.setupComplete ? navigateToDashboard() : setStep(1))}
+          buttonLabel={
+            status?.setupComplete
+              ? "Open dashboard"
+              : status?.items.business.done
+                ? "Continue setup"
+                : "Start setup"
+          }
         />
       ) : (
         <div className="setup-card card">
@@ -460,30 +472,28 @@ export default function OnboardingPage({ onDone }: { onDone: () => Promise<unkno
   );
 }
 
-// ── Loading screen: hero video full-bleed + intro wheel + Start button ──────
+// ── Loading screen: hero video full-bleed + intro card sequence ─────────────
+// Phase timing lives in IntroSequence: 0–4 s video only, cards fly in from 4 s,
+// controls fade in once they settle. The Start button's label follows setup
+// progress: Start setup → Continue setup (partly done) → Open dashboard.
 
-function LoadingScreen({ onStart, resumeLabel }: { onStart: () => void; resumeLabel: string }) {
+function LoadingScreen({ onProceed, buttonLabel }: { onProceed: () => void; buttonLabel: string }) {
   const reduced = prefersReducedMotion();
   return (
     <div className="loading-screen">
       {reduced ? (
         <div className="loading-bg-still" aria-hidden="true" />
       ) : (
-        <video className="loading-bg" src="/starlly-hero.mp4" autoPlay muted loop playsInline aria-hidden="true" />
+        <video className="loading-bg" src="/starlly-hero.mp4" autoPlay muted loop playsInline poster="/orb-still.png" aria-hidden="true" />
       )}
       <div className="loading-scrim" aria-hidden="true" />
-      <div className="loading-content">
-        <img className="loading-logo" src="/logo-c-wordmark-dots.svg" alt="" aria-hidden="true" />
-        <WorksWheel items={INTRO_ITEMS} label="starlly." />
-        <p className="loading-sub">
-          Collect more Google reviews. Learn from every word of feedback. The AI drafts — you approve.
-        </p>
-        <button className="loading-start" onClick={onStart}>
-          {resumeLabel}
-          <Icon name="arrow" size={16} />
-        </button>
-        <span className="loading-hint">Setup takes about two minutes. Your keys never leave this machine.</span>
-      </div>
+      <IntroSequence
+        items={INTRO_ITEMS}
+        headline={INTRO_HEADLINE}
+        logo={<LogoMark className="intro-logo-mark" />}
+        buttonLabel={buttonLabel}
+        onStart={onProceed}
+      />
     </div>
   );
 }

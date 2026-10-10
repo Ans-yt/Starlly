@@ -16,8 +16,11 @@ test.describe.configure({ mode: "serial" });
 test("flow 1: setup gate — loading screen → business → AI test (stub passes)", async ({ page }) => {
   await page.goto("/");
 
-  // Step 0: the loading screen with hero video + intro wheel + Start button.
+  // Step 0: the loading screen — hero video (0–4 s), intro card flight
+  // (4–7.5 s), then controls fade in. The Start button only becomes
+  // interactive in the settled phase.
   await expect(page.locator(".loading-screen")).toBeVisible();
+  await page.waitForSelector('.intro-sequence[data-phase="ready"]', { timeout: 20_000 });
   await expect(page.locator(".loading-start")).toContainText("Start setup");
   await page.locator(".loading-start").click();
 

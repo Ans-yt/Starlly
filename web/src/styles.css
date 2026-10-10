@@ -418,13 +418,11 @@ html, body, #root {
 }
 .place-row:hover { border-color: #c9b8ee; background: #f7f3ff; }
 
-/* ── Loading screen: hero video full-bleed + intro wheel ─────────────────── */
+/* ── Loading screen: hero video full-bleed + intro card sequence (pass A) ── */
 .loading-screen {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  display: grid;
-  place-items: center;
   background: #14101d;
   color: #fff;
 }
@@ -435,36 +433,212 @@ html, body, #root {
   height: 100%;
   object-fit: cover;
 }
-/* Reduced motion: no video — brand gradient + logo still, no invented substitute. */
+/* Reduced motion (I7): no autoplay video — poster frame + brand gradient. */
 .loading-bg-still {
+  position: absolute;
+  inset: 0;
+  background: url("/orb-still.png") center / cover no-repeat;
+}
+.loading-bg-still::after {
+  content: "";
   position: absolute;
   inset: 0;
   background:
     radial-gradient(90rem 40rem at 20% -10%, rgba(175, 154, 202, 0.25), transparent 60%),
     radial-gradient(70rem 36rem at 85% 110%, rgba(104, 67, 202, 0.35), transparent 60%),
-    #14101d;
+    rgba(20, 16, 29, 0.55);
 }
 .loading-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(20, 16, 29, 0.55), rgba(20, 16, 29, 0.72));
+  background: linear-gradient(180deg, rgba(20, 16, 29, 0.5), rgba(20, 16, 29, 0.68));
 }
-.loading-content {
+
+/* ── Intro sequence ──────────────────────────────────────────────────────── */
+.intro-sequence {
   position: relative;
+  z-index: 2;
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 24px;
-  text-align: center;
+  padding: 3vh 4vw 4vh;
+  gap: 10px;
 }
-.loading-logo { width: 132px; opacity: 0.95; }
-.loading-sub {
+.intro-path {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+/* I6: logo in a soft glass chip — no hard frame, off-white ink. */
+.intro-logo-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f5f4ef;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+.intro-sequence[data-phase="cards"] .intro-logo-chip,
+.intro-sequence[data-phase="ready"] .intro-logo-chip { opacity: 1; }
+.intro-logo-chip svg,
+.intro-logo-mark {
+  width: clamp(120px, 16vw, 150px);
+  height: auto;
+  display: block;
+}
+.intro-headline {
   margin: 0;
-  max-width: 560px;
-  font-size: 14px;
-  color: #cfc8dd;
+  text-align: center;
+  max-width: min(760px, 92vw);
+  font-size: clamp(19px, 2.4vw, 30px);
+  line-height: 1.25;
+  letter-spacing: -0.4px;
+  font-weight: 650;
+  color: #f5f4ef;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
+.intro-sequence[data-phase="ready"] .intro-headline { opacity: 1; transform: none; }
+.intro-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: min(1040px, 94vw);
+  outline: none;
+}
+/* The owner's mock-up already styles a light ".intro-card" panel — reset it:
+   the flight only positions the outer card; the glass look lives on -inner. */
+.intro-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(200px, 26vw, 330px);
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.intro-sequence[data-phase="ready"] .intro-card { opacity: 1; }
+.intro-sequence:not([data-phase="ready"]) .intro-card { pointer-events: none; }
+/* I5: dark glass panel behind the text — legible over the bright video;
+   text wraps and never rotates. */
+.intro-card-inner {
+  background: rgba(20, 16, 29, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+  padding: clamp(12px, 1.4vw, 18px) clamp(14px, 1.6vw, 20px);
+  transform-origin: center;
+  transition: transform 0.4s ease, opacity 0.4s ease, border-color 0.4s ease;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+.intro-card.is-active { z-index: 3; cursor: default; }
+.intro-card.is-active .intro-card-inner {
+  transform: scale(1.05);
+  opacity: 1;
+  border-color: rgba(185, 168, 255, 0.65);
+}
+.intro-card.is-receding { z-index: 1; cursor: pointer; }
+/* Nearly opaque: the bright wordmark in the video must not bleed through. */
+.intro-card.is-receding .intro-card-inner {
+  background: rgba(14, 11, 21, 0.97);
+  transform: scale(0.85);
+  opacity: 0.92;
+}
+.intro-card-icon {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 8px;
+  color: #c9b2f2;
+}
+.intro-card-inner strong {
+  display: block;
+  font-size: clamp(15px, 0.6vw + 10px, 19px);
+  color: #fff;
+  margin-bottom: 6px;
+  letter-spacing: -0.2px;
+}
+.intro-card-inner p {
+  margin: 0;
+  font-size: clamp(11.5px, 0.3vw + 9px, 13.5px);
+  line-height: 1.5;
+  color: rgba(245, 244, 239, 0.8);
+}
+/* I3/I4: controls — arrows, 44 px dots, Start button. Hidden until settle. */
+.intro-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.intro-sequence[data-phase="ready"] .intro-controls { opacity: 1; pointer-events: auto; }
+.intro-dots { display: flex; align-items: center; }
+.intro-dot {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.intro-dot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: 0.2s;
+}
+.intro-dot[aria-current="true"]::after {
+  width: 26px;
+  margin-left: -13px;
+  border-radius: 6px;
+  background: #a98bff;
+}
+.intro-dot:focus-visible,
+.intro-arrow:focus-visible,
+.loading-start:focus-visible { outline: 3px solid #b9a8ff; outline-offset: 3px; }
+.intro-arrow {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f5f4ef;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.18s;
+}
+.intro-arrow:hover { background: rgba(255, 255, 255, 0.16); }
+.intro-arrow svg { width: 20px; height: 20px; display: block; }
 .loading-start {
   display: inline-flex;
   align-items: center;
@@ -478,9 +652,13 @@ html, body, #root {
   color: #fff;
   background: linear-gradient(135deg, #6843ca, #9a6ee8);
   box-shadow: 0 10px 28px rgba(104, 67, 202, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
 }
+.intro-sequence[data-phase="ready"] .loading-start { opacity: 1; pointer-events: auto; }
 .loading-start:hover { filter: brightness(1.08); }
-.loading-hint { font-size: 11px; color: #9d93b1; }
+.intro-start-arrow { width: 18px; height: 18px; }
 
 /* ── WorksWheel (adapted from the owner's component; plain CSS) ──────────── */
 .wheel {
