@@ -57,6 +57,22 @@ for (const [width, height] of [
     await page.waitForSelector(".dashboard", { timeout: 15_000 });
     await page.waitForTimeout(600); // let the orb video and charts settle
 
+    const layout = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector(selector)!.getBoundingClientRect();
+      const hero = rect(".hero"), action = rect(".action-card");
+      const themes = rect(".themes"), chart = rect(".chart-card");
+      const funnel = rect(".funnel"), reviews = rect(".reviews");
+      return {
+        topRow: Math.abs(hero.bottom - action.bottom),
+        middleRow: Math.abs(themes.top - chart.top),
+        bottomRow: Math.abs(themes.bottom - funnel.bottom) + Math.abs(reviews.bottom - funnel.bottom),
+      };
+    });
+    expect(layout.topRow, "Hero and request card should fill the same row").toBeLessThan(2);
+    expect(layout.middleRow, "Themes and chart should start together").toBeLessThan(2);
+    expect(layout.bottomRow, "Tall side cards should end at the funnel baseline").toBeLessThan(2);
+    await expect(page.locator(".hero-art")).toHaveCount(0);
+
     const fits = await page.evaluate(() => {
       const main = document.querySelector(".main");
       const pageFits = document.documentElement.scrollHeight <= window.innerHeight;
@@ -84,5 +100,39 @@ test("empty dashboard shows real empty states, not fake counts", async ({ page }
   await page.waitForSelector(".dashboard", { timeout: 15_000 });
   await expect(page.getByText("No reviews yet")).toBeVisible();
   await expect(page.getByText("No themes yet")).toBeVisible();
+  const emptyLayout = await page.locator(".reviews .empty").evaluate((element) => {
+    const title = element.querySelector("strong")!.getBoundingClientRect();
+    const hint = element.querySelector(".small")!.getBoundingClientRect();
+    const action = element.querySelector("a")!.getBoundingClientRect();
+    return { hintGap: hint.top - title.bottom, actionGap: action.top - hint.bottom };
+  });
+  expect(emptyLayout.hintGap, "Empty-state hint must sit below the title").toBeGreaterThanOrEqual(4);
+  expect(emptyLayout.actionGap, "Empty-state action must sit below the hint").toBeGreaterThanOrEqual(4);
+  await expect(page.locator("#view-overview")).toHaveCSS("opacity", "1");
   await page.screenshot({ path: "screenshots/dashboard-empty-1440x900.png" });
+});
+
+
+test("dashboard stacks without clipping on mobile and tablet", async ({ page }) => {
+  await loginInPage(page);
+  for (const [width, height] of [[390, 844], [1024, 768]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto("/");
+    await page.waitForSelector(".dashboard");
+    await expect(page.locator("#view-overview")).toHaveCSS("opacity", "1");
+    await page.screenshot({ path: `screenshots/dashboard-${width}x${height}.png`, fullPage: true });
+    const bounds = await page.locator(".dashboard > .card").evaluateAll((cards) => cards.map((card) => {
+      const rect = card.getBoundingClientRect();
+      return { name: card.className, left: rect.left, right: rect.right, height: rect.height, overflow: card.scrollWidth - card.clientWidth };
+    }));
+    for (const card of bounds) {
+      expect(card.left).toBeGreaterThanOrEqual(0);
+      expect(card.right).toBeLessThanOrEqual(width);
+      expect(card.height).toBeGreaterThan(100);
+      expect(card.overflow, card.name).toBeLessThanOrEqual(1);
+    }
+    await page.locator(".overview-bottom").scrollIntoViewIfNeeded();
+    await expect(page.locator(".overview-bottom")).toBeInViewport();
+
+  }
 });

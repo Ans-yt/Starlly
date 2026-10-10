@@ -4,8 +4,8 @@ import { expect, test, type Page } from "@playwright/test";
 // runs against a setup-incomplete database: the intro only shows while the
 // setup gate is open.
 //
-// Timeline: 0–4 s video only; cards fly in from 4 s (450 ms apart, ~2.6 s
-// each); settle ~7.5 s; controls fade in; auto-advance every 5 s after that.
+// Timeline: 0–4 s video only; cards arrive in separate slots, 180 ms apart
+// with a 760 ms entrance; controls appear after the last arrival.
 
 const VIEWPORTS = [
   { name: "1280x720", width: 1280, height: 720 },
@@ -34,7 +34,8 @@ test("I1/I2: video-only for 4 s, then cards fly in — captured frames", async (
   expect(await page.locator(".intro-card").count()).toBe(0);
   expect(await page.locator("video.loading-bg").count()).toBe(1);
 
-  await page.waitForTimeout(2000); // t≈5.3 s — cards mid-flight
+  await page.waitForSelector('.intro-sequence[data-phase="cards"]');
+  await page.waitForTimeout(250); // sample the stagger before the controls appear
   await page.screenshot({ path: "screenshots/intro-5s.png" });
   expect(await page.locator(".intro-card").count()).toBe(3);
   const anyFlying = await page.locator(".intro-card").evaluateAll((els) =>
@@ -44,8 +45,9 @@ test("I1/I2: video-only for 4 s, then cards fly in — captured frames", async (
   const controlsAt5 = await page.locator(".intro-controls").evaluate((el) => getComputedStyle(el).opacity);
   expect(Number(controlsAt5)).toBeLessThan(0.5);
 
-  await page.waitForTimeout(3000); // t≈8.3 s — settled, controls in
+  // Wait for all arrivals and the supporting controls to settle.
   await waitReady(page);
+  await expect(page.locator(".intro-headline")).toHaveCSS("opacity", "1");
   await page.screenshot({ path: "screenshots/intro-8s.png" });
   await expect(page.locator(".intro-dot")).toHaveCount(3);
   const headline = await page.locator(".intro-headline").evaluate((el) => getComputedStyle(el).opacity);
@@ -122,6 +124,7 @@ for (const vp of VIEWPORTS) {
     await page.setViewportSize({ width: vp.width, height: vp.height });
     await page.goto("/");
     await waitReady(page);
+    await expect(page.locator(".intro-headline")).toHaveCSS("opacity", "1");
     await page.screenshot({ path: `screenshots/intro-ready-${vp.name}.png` });
     const checks = await page.evaluate(() =>
       Array.from(document.querySelectorAll(".intro-card-inner")).map((el) => {
@@ -197,4 +200,32 @@ test("I7: reduced motion — resting layout, still frame, no auto-advance, contr
   await page.locator(".intro-dot").nth(1).click(); // controls still work
   await expect(page.locator(".intro-card").nth(1)).toHaveClass(/is-active/);
   await ctx.close();
+});
+
+
+test("intro cards have separate readable spaces at every viewport", async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: "reduce" });
+  const page = await context.newPage();
+  for (const viewport of VIEWPORTS) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    await waitReady(page);
+    const layout = await page.locator(".intro-card-inner").evaluateAll((cards) => cards.map(card => {
+      const r = card.getBoundingClientRect();
+      return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+    }));
+    for (let i = 0; i < layout.length; i++) {
+      const a = layout[i];
+      expect(a.left).toBeGreaterThanOrEqual(0);
+      expect(a.right).toBeLessThanOrEqual(viewport.width);
+      expect(a.top).toBeGreaterThanOrEqual(0);
+      expect(a.bottom).toBeLessThanOrEqual(viewport.height);
+      for (const b of layout.slice(i + 1)) {
+        expect(a.right + 8 <= b.left || b.right + 8 <= a.left || a.bottom + 8 <= b.top || b.bottom + 8 <= a.top,
+          `Cards must have breathing room at ${viewport.name}`).toBe(true);
+      }
+    }
+    await expect(page.locator(".loading-start")).toBeInViewport();
+  }
+  await context.close();
 });

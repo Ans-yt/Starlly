@@ -30,6 +30,8 @@ Active item is clearly marked (background + right bar marker, never color alone)
 
 ## 2. Overview (dashboard — one screen, from the mock-up)
 
+The hero business card has no decorative purple sculpture. Cards stretch to fill their grid rows; empty-state titles, hints, and actions stack with spacing. Below 1280px wide or 720px tall, the dashboard uses a scrolling layout (two columns on tablet, one on mobile).
+
 Grid: hero spans two columns; action card beside it; themes card spans two rows on the left; chart and funnel in the middle; reviews feed column on the right.
 
 | Card | Content |
@@ -145,3 +147,13 @@ Messages: Edit message, Preview, Check policy, Send test to me, Approve and send
 Insights: View source reviews, Draft a reply, Copy, Mark as fixed, Regenerate summary, Draft email, Snooze, Dismiss, Call, Mark resolved, Add note.
 Settings: Test connection, Save, Load demo data, Remove demo data, Delete my data.
 Customer page: Star 1 to 5, Leave a Google review, Send private feedback, Request a call, Submit feedback.
+
+
+## Loading intro motion
+The opening video lasts four seconds. Ask, Understand and Act enter their own
+separate grid slots with a 180ms stagger and 760ms decelerating entrance.
+Desktop and tablet show three cards side by side; mobile stacks the cards.
+Focus changes tint and lift the selected card slightly without shrinking text
+or overlapping its neighbors. Dots, arrows, keyboard, swipe, pause and Start
+keep their behavior. Reduced motion immediately shows the resting layout and
+keeps controls functional, without autoplay or spatial entrance animation.

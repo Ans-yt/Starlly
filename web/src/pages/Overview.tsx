@@ -116,9 +116,6 @@ export default function OverviewPage() {
               </span>
             )}
           </div>
-          <div className="hero-art" aria-hidden="true">
-            <span className="hero-art-dot" />
-          </div>
         </article>
 
         <article className="card action-card">

@@ -37,6 +37,7 @@ html, body, #root {
   flex: 1;
   min-height: 0;
   gap: 18px;
+  align-items: stretch;
   grid-template-rows: minmax(150px, 0.85fr) minmax(170px, 1.2fr) minmax(140px, 1fr);
 }
 .hero, .action-card, .themes, .chart-card, .funnel, .reviews {
@@ -50,11 +51,34 @@ html, body, #root {
   flex-shrink: 0;
   margin-top: 18px;
 }
-.chart-card .chart-wrap { height: clamp(64px, 16vh, 124px); }
+.action-card::after { right: 24px; }
+.hero-content { max-width: 100%; }
+.hero-content > .row > div:last-child { min-width: 0; }
+.business-name, .hero .meta { overflow-wrap: anywhere; }
+.business-icon { flex-shrink: 0; }
+.chart-card { display: flex; flex-direction: column; }
+.chart-card .chart-wrap { flex: 1; min-height: 0; height: auto; margin-bottom: 0; }
+.card-title, .segmented, .themes-footer { flex-shrink: 0; }
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.empty > strong { color: var(--ink); }
+.empty > .small { max-width: 36ch; }
+.empty > .btn { margin-top: 8px; text-decoration: none; }
+.scroll-fade > .empty { flex: 1; min-height: 0; padding: 20px 12px; overflow-y: auto; }
+.chart-wrap > .empty { height: 100%; padding: 8px; }
+.scroll-fade:has(> .empty)::after { display: none; }
+.theme-list { align-content: start; }
+.mini-track { display: block; }
+.funnel-track > span { background: var(--purple); border-radius: inherit; }
+
 .funnel-row { margin-top: 8px; }
 .funnel-note { margin-top: 8px; font-size: 9px; }
-/* The SVG must follow the wrap's height, not its aspect ratio; the fixed-height
-   wrap clips its content (empty state or chart) instead of pushing the card. */
+/* The chart follows the available card height without pushing its grid row. */
 .chart-wrap { overflow: hidden; }
 .chart-wrap .chart { width: 100%; height: 100%; display: block; }
 
@@ -80,9 +104,8 @@ html, body, #root {
   .hero { padding: 14px 20px; }
   .hero .big-rating { font-size: 30px; }
   .hero .meta { font-size: 10px; }
-  .hero-rating { gap: 8px; }
-  .hero-art { width: 110px; height: 110px; right: 26px; top: 24px; }
-  .hero-bottom { gap: 5px; flex-wrap: wrap; }
+  .hero-rating { gap: 8px; margin-top: 12px; }
+  .hero-bottom { margin-top: 8px; gap: 5px; flex-wrap: wrap; }
   .hero-bottom .badge { font-size: 9px; padding: 4px 9px; }
   .action-card { padding: 14px 18px; }
   .action-card h2 { font-size: 17px; margin-top: 6px; }
@@ -93,7 +116,7 @@ html, body, #root {
   .card-title p { font-size: 10px; margin-top: 3px; }
   .theme-list { margin-top: 8px; gap: 4px; }
   .theme-row { padding: 6px 0; }
-  .chart-card .chart-wrap { height: clamp(52px, 9vh, 84px); }
+
   .chart-summary { margin-top: 2px; }
   .chart-summary .chart-number { font-size: 20px; }
   .chart-wrap .empty { padding: 2px 0; gap: 2px; }
@@ -116,7 +139,6 @@ html, body, #root {
   .hero { padding: 12px 18px; }
   .hero .big-rating { font-size: 24px; }
   .hero .meta { font-size: 9px; }
-  .hero-art { width: 88px; height: 88px; right: 22px; top: 20px; }
   .hero-bottom .badge { font-size: 8px; padding: 3px 8px; }
   .dashboard {
     gap: 10px;
@@ -128,13 +150,57 @@ html, body, #root {
   .funnel .card-title { margin-bottom: 4px; }
   /* The chart summary duplicates the chart's story — fold it at 720p. */
   .chart-summary { display: none; }
-  .chart-card .chart-wrap { height: clamp(56px, 9vh, 80px); }
+
   .action-card .btn { padding: 9px 14px; }
 }
 @media (min-width: 1500px) {
   .dashboard {
     grid-template-rows: minmax(170px, 0.9fr) minmax(200px, 1.25fr) minmax(160px, 1fr);
   }
+}
+
+/* Below the desktop target, let the page grow instead of squeezing or
+   creating implicit columns from the fixed desktop card placements. */
+@media (max-width: 1279px), (max-height: 719px) {
+  html, body, #root { height: auto; min-height: 100dvh; overflow: visible; }
+  .shell { height: auto; min-height: calc(100dvh - 64px); overflow: visible; }
+  .main, .main:has(#view-overview) { display: block; overflow: visible; }
+  #view-overview { display: block; }
+  .dashboard { grid-template-rows: auto; }
+  .hero, .action-card { min-height: 180px; }
+  .themes, .reviews { min-height: 360px; }
+  .chart-card { min-height: 220px; }
+  .funnel { min-height: 190px; }
+  .chart-summary { display: flex; }
+  .scroll-fade { flex: 1 1 auto; }
+  .scroll-fade .theme-list, .scroll-fade .review-list { max-height: 380px; }
+}
+@media (min-width: 761px) and (max-width: 1279px) {
+  .dashboard { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .hero { grid-column: 1 / -1; grid-row: 1; }
+  .action-card { grid-column: 1 / -1; grid-row: 2; min-height: 180px; }
+  .action-card h2 { max-width: none; }
+  .themes { grid-column: 1; grid-row: 3; }
+  .reviews { grid-column: 2; grid-row: 3; }
+  .chart-card { grid-column: 1; grid-row: 4; }
+  .funnel { grid-column: 2; grid-row: 4; }
+  .reviews .review:nth-child(n+3) { display: block; }
+}
+@media (max-width: 760px) {
+  .topbar { height: 76px; padding: 0 17px; }
+  .shell { padding: 24px 16px 100px; }
+  .dashboard { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .dashboard > .card { grid-column: 1; grid-row: auto; }
+  .theme-list { grid-template-columns: 1fr; }
+  .theme-list .theme-row:nth-child(n+7) { display: flex; }
+  .page-head h1 { font-size: 25px; }
+  .head-actions { flex-wrap: wrap; gap: 8px; }
+  .action-card { display: flex; }
+  .action-card .btn { width: auto; align-self: stretch; margin-top: auto; }
+  .action-card .btn .send-label { display: inline; }
+  .page-footer { flex-wrap: wrap; }
+  .rail, .rail.compact { padding: 6px; gap: 0; }
+  .rail .nav-btn, .rail.compact .nav-btn { height: 56px; width: 60px; }
 }
 
 /* Long cards scroll INSIDE themselves: visible scrollbar + bottom fade (D2). */
@@ -463,14 +529,9 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3vh 4vw 4vh;
-  gap: 10px;
-}
-.intro-path {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
+  padding: clamp(16px, 3vh, 32px) 4vw;
+  gap: 12px;
+  overflow-y: auto;
 }
 /* I6: logo in a soft glass chip — no hard frame, off-white ink. */
 .intro-logo-chip {
@@ -513,54 +574,60 @@ html, body, #root {
 .intro-stage {
   position: relative;
   flex: 1;
-  min-height: 0;
-  width: min(1040px, 94vw);
+  min-height: min-content;
+  width: min(1040px, 100%);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+  align-content: center;
   outline: none;
+  padding: 20px 0;
 }
-/* The owner's mock-up already styles a light ".intro-card" panel — reset it:
-   the flight only positions the outer card; the glass look lives on -inner. */
+/* Layout owns the slots; only the entrance animates the outer card. */
 .intro-card {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: clamp(200px, 26vw, 330px);
+  position: relative;
+  width: auto;
   margin: 0;
   padding: 0;
   background: none;
   border: 0;
   border-radius: 0;
-  opacity: 0;
-  will-change: transform, opacity;
+  opacity: 1;
+  min-width: 0;
 }
-.intro-sequence[data-phase="ready"] .intro-card { opacity: 1; }
+.intro-sequence[data-phase="cards"] .intro-card { opacity: 0; will-change: transform, opacity; }
 .intro-sequence:not([data-phase="ready"]) .intro-card { pointer-events: none; }
-/* I5: dark glass panel behind the text — legible over the bright video;
-   text wraps and never rotates. */
 .intro-card-inner {
-  background: rgba(20, 16, 29, 0.62);
+  height: 100%;
+  background: rgba(20, 16, 29, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 20px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
-  padding: clamp(12px, 1.4vw, 18px) clamp(14px, 1.6vw, 20px);
-  transform-origin: center;
-  transition: transform 0.4s ease, opacity 0.4s ease, border-color 0.4s ease;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.3);
+  padding: clamp(16px, 1.8vw, 24px);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), border-color 280ms ease, background-color 280ms ease;
   overflow-wrap: break-word;
-  word-break: normal;
 }
-.intro-card.is-active { z-index: 3; cursor: default; }
+.intro-card.is-active { cursor: default; }
 .intro-card.is-active .intro-card-inner {
-  transform: scale(1.05);
-  opacity: 1;
-  border-color: rgba(185, 168, 255, 0.65);
+  transform: translateY(-4px);
+  background: rgba(31, 24, 45, 0.96);
+  border-color: rgba(185, 168, 255, 0.8);
 }
-.intro-card.is-receding { z-index: 1; cursor: pointer; }
-/* Nearly opaque: the bright wordmark in the video must not bleed through. */
-.intro-card.is-receding .intro-card-inner {
-  background: rgba(14, 11, 21, 0.97);
-  transform: scale(0.85);
-  opacity: 0.92;
+.intro-card.is-receding { cursor: pointer; }
+.intro-card.is-receding .intro-card-inner { transform: none; }
+.intro-stage:focus-visible { outline: 2px solid #b9a8ff; outline-offset: 6px; border-radius: 20px; }
+@media (max-width: 600px) {
+  .intro-stage { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 12px 0; }
+  .intro-card-inner { padding: 14px 18px; }
+  .intro-card-icon { float: left; margin-right: 12px; }
+  .intro-card-inner p { clear: both; }
+  .intro-headline { font-size: 19px; }
+  .intro-logo-chip { padding: 10px 18px; }
+  .intro-logo-chip svg, .intro-logo-mark { width: 80px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-card-inner, .intro-logo-chip, .intro-headline, .intro-controls, .loading-start { transition: none; }
+  .intro-card.is-active .intro-card-inner, .intro-headline { transform: none; }
 }
 .intro-card-icon {
   width: 22px;

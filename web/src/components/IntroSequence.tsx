@@ -1,14 +1,6 @@
-// IntroSequence — the loading screen's card show (pass A of the owner's spec).
-//
-// Timeline: 0–4 s video only (the sequence renders nothing but stays mounted);
-// at 4 s the three cards (Ask, Understand, Act) fly in one after another
-// (450 ms apart) along the path from the owner's sketch — enter upper-left,
-// sweep right, curve down, loop the bottom-centre hook — then settle into
-// three resting slots; after they settle the headline, dots and Start button
-// fade in and the cards start cycling (one focused, others recede).
-//
-// Text never rotates: only translate/scale/opacity animate, and the flight
-// places whole cards (the glass panel with the text inside moves rigidly).
+// Loading intro: Ask, Understand and Act arrive in their own responsive slots.
+// The video keeps its four-second opening; entrance uses compositor animations
+// rather than reading card geometry on every frame. Controls keep their behavior.
 import * as React from "react";
 
 export interface IntroItem {
@@ -18,20 +10,9 @@ export interface IntroItem {
   icon: string;
 }
 
-// Path and resting slots in the owner's sketch space (1040 x 490), scaled to
-// the live stage size.
-const REF = { w: 1040, h: 490 };
-const PATH_D =
-  "M5 98 C120 96 240 120 300 145 C335 165 340 215 335 238 C315 270 305 320 315 345 C335 375 380 392 425 378 C455 365 460 335 445 322";
-const SLOTS = [
-  { x: 522, y: 150 },
-  { x: 420, y: 278 },
-  { x: 610, y: 265 },
-];
-
-const VIDEO_ONLY_MS = 4000; // I1: nothing but the video for the first 4 s
-const GAP = 450; // I2: cards arrive 450 ms apart
-const FLIGHT_T = 2600; // flight duration per card
+const VIDEO_ONLY_MS = 4000;
+const GAP = 180;
+const ENTRANCE_MS = 760;
 const AUTO_MS = 5000; // I3: auto-advance every 5 s
 const IDLE_MS = 8000; // I3: resume 8 s after the last interaction
 const SWIPE_PX = 40; // I4: touch-swipe threshold
@@ -59,8 +40,6 @@ export function IntroSequence({
   const [phase, setPhase] = React.useState<Phase>(() => (prefersReducedMotion() ? "ready" : "video"));
   const [active, setActive] = React.useState(0);
 
-  const stageRef = React.useRef<HTMLDivElement>(null);
-  const pathRef = React.useRef<SVGPathElement>(null);
   const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
   const activeRef = React.useRef(0);
   const advanceTimer = React.useRef<number | undefined>(undefined);
@@ -77,95 +56,42 @@ export function IntroSequence({
     return () => mq.removeEventListener("change", read);
   }, []);
 
-  // I1 → I2: video-only, then the cards mount and fly.
+  // Keep the opening video, then reveal the cards once per mount.
   React.useEffect(() => {
     if (reduced) {
       setPhase("ready");
       return;
     }
-    const t = window.setTimeout(() => setPhase("cards"), VIDEO_ONLY_MS);
-    return () => window.clearTimeout(t);
-  }, [reduced]);
+    if (phase !== "video") return;
+    const timer = window.setTimeout(() => setPhase("cards"), VIDEO_ONLY_MS);
+    return () => window.clearTimeout(timer);
+  }, [reduced, phase]);
 
-  const placeAtSlots = React.useCallback(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const sx = stage.clientWidth / REF.w;
-    const sy = stage.clientHeight / REF.h;
-    cardRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const slot = SLOTS[i] ?? SLOTS[SLOTS.length - 1];
-      el.style.transform = `translate(${slot.x * sx - el.offsetWidth / 2}px, ${slot.y * sy - el.offsetHeight / 2}px)`;
-    });
-  }, []);
-
-  // I2: the flight (adapted from the owner's flyCards). Cancels cleanly if the
-  // user clicks Start mid-flight.
+  // Each card moves within its own layout slot, so paths never cross.
+  // Native animations handle the stagger without a JS loop or layout reads.
   React.useEffect(() => {
     if (phase !== "cards" || reduced) return;
-    const stage = stageRef.current;
-    const path = pathRef.current;
-    if (!stage || !path) return;
-    let len = 0;
-    try {
-      len = path.getTotalLength();
-    } catch {
-      len = 0;
-    }
-    const sx = stage.clientWidth / REF.w;
-    const sy = stage.clientHeight / REF.h;
-    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
-    const place = (el: HTMLElement, x: number, y: number) =>
-      (el.style.transform = `translate(${x * sx - el.offsetWidth / 2}px, ${y * sy - el.offsetHeight / 2}px)`);
-    const start = performance.now();
-    let raf = 0;
     let cancelled = false;
-    const frame = (now: number) => {
-      if (cancelled) return;
-      let done = true;
-      cardRefs.current.forEach((el, i) => {
-        if (!el) return;
-        const t = Math.min(Math.max((now - start - i * GAP) / FLIGHT_T, 0), 1);
-        el.style.opacity = t > 0 ? "1" : "0";
-        const e = ease(t);
-        if (len > 0) {
-          if (e < 0.85) {
-            const pt = path.getPointAtLength((e / 0.85) * len);
-            place(el, pt.x, pt.y);
-          } else {
-            // last 15%: glide from the path end to the resting slot
-            const end = path.getPointAtLength(len);
-            const k = (e - 0.85) / 0.15;
-            place(el, end.x + (SLOTS[i].x - end.x) * k, end.y + (SLOTS[i].y - end.y) * k);
-          }
-        } else {
-          place(el, SLOTS[i].x, SLOTS[i].y);
-        }
-        if (t < 1) done = false;
-      });
-      if (done) {
-        setPhase("ready");
-        return;
-      }
-      raf = requestAnimationFrame(frame);
-    };
-    raf = requestAnimationFrame(frame);
+    const animations = cardRefs.current.slice(0, count).flatMap((card, index) => {
+      if (!card) return [];
+      return [card.animate([
+        { opacity: 0, transform: "translate3d(0, 14px, 0) scale(.97)" },
+        { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" },
+      ], {
+        duration: ENTRANCE_MS,
+        delay: index * GAP,
+        easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        fill: "both",
+      })];
+    });
+    void Promise.all(animations.map(animation => animation.finished))
+      .then(() => { if (!cancelled) setPhase("ready"); })
+      .catch(() => { /* Cancellation on unmount or reduced-motion change. */ });
     return () => {
       cancelled = true;
-      cancelAnimationFrame(raf);
+      animations.forEach(animation => animation.cancel());
     };
-  }, [phase, reduced]);
-
-  // Keep the resting slots pinned to the scaled sketch coordinates on resize.
-  React.useEffect(() => {
-    if (phase !== "ready") return;
-    placeAtSlots();
-    const stage = stageRef.current;
-    if (!stage || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => placeAtSlots());
-    ro.observe(stage);
-    return () => ro.disconnect();
-  }, [phase, placeAtSlots]);
+  }, [phase, reduced, count]);
 
   // I3: focus cycling.
   const go = React.useCallback(
@@ -276,17 +202,12 @@ export function IntroSequence({
       onFocus={pause}
       onBlur={scheduleResume}
     >
-      {/* measurement-only copy of the sketch path (geometry APIs need a live element) */}
-      <svg className="intro-path" aria-hidden="true" focusable="false">
-        <path ref={pathRef} d={PATH_D} fill="none" stroke="none" />
-      </svg>
-
       <div className="intro-logo-chip">{logo}</div>
       <h1 className="intro-headline">{headline}</h1>
 
       <div
         className="intro-stage"
-        ref={stageRef}
+        tabIndex={0}
         role="listbox"
         aria-label="What Starlly does"
         onPointerEnter={pause}
