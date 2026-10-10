@@ -74,7 +74,10 @@ export function WorksWheel({ items, label = "starlly.", className }: WorksWheelP
   const [stage, setStage] = React.useState({ w: 0, h: 0 });
 
   const count = items.length;
+  // Turn positions: 0 = closed ring, then 1..count front each card in turn.
+  // The input clamp must allow reaching the LAST card (t = count).
   const last = Math.max(count - 1, 0);
+  const maxTurn = Math.max(count, 1);
 
   const [reduced, setReduced] = React.useState(false);
   React.useEffect(() => {
@@ -161,13 +164,14 @@ export function WorksWheel({ items, label = "starlly.", className }: WorksWheelP
 
   const to = React.useCallback(
     (next: number) => {
-      target.current = clamp(next, 0, last);
+      target.current = clamp(next, 0, maxTurn);
     },
-    [last],
+    [maxTurn],
   );
 
   const drag = React.useRef<number | null>(null);
   const settling = React.useRef(0);
+  const wheelAccum = React.useRef(0);
 
   return (
     <section aria-label={label} className={`wheel ${className ?? ""}`}>
@@ -191,6 +195,16 @@ export function WorksWheel({ items, label = "starlly.", className }: WorksWheelP
         onPointerUp={() => {
           drag.current = null;
           if (target.current > 1) to(Math.round(target.current));
+        }}
+        onWheel={(event) => {
+          // Accumulate scroll delta; each WHEEL_UNITS worth steps one card.
+          wheelAccum.current += event.deltaY;
+          const steps = Math.trunc(wheelAccum.current / WHEEL_UNITS);
+          if (steps !== 0) {
+            wheelAccum.current -= steps * WHEEL_UNITS;
+            to(Math.round(target.current) + steps);
+          }
+          event.preventDefault();
         }}
         onKeyDown={(event) => {
           if (event.key === "ArrowDown" || event.key === "ArrowRight") to(Math.round(target.current) + 1);
